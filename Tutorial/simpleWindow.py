@@ -4,6 +4,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget
 
+
 def simpleWindow():
     app = QApplication(sys.argv)
     # 新しいアプリケーションの土台を作る

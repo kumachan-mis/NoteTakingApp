@@ -3,7 +3,8 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 
-class messageBoxWindow(QWidget):
+
+class MessageBoxWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -13,7 +14,6 @@ class messageBoxWindow(QWidget):
         self.resize(500, 400)
         self.setWindowTitle("messageBox")
         self.show()
-
 
     def closeEvent(self, event): # QWidgetクラスから継承. ウィンドウを閉じようとした時に呼ばれる
         getReply = QMessageBox.question(self, 'check', 'ウィンドウを閉じていいですか？', # ユーザの選択を促すメソッド
@@ -27,5 +27,5 @@ class messageBoxWindow(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    messageBox = messageBoxWindow()
+    messageBox = MessageBoxWindow()
     sys.exit(app.exec_())

@@ -5,6 +5,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton
 from PyQt5.QtGui import QFont
 
+
 class TooltipWindow(QWidget):
     def __init__(self):
         super().__init__()

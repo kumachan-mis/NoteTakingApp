@@ -5,6 +5,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import QIcon
 
+
 class IconWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -13,7 +14,7 @@ class IconWindow(QWidget):
     def initUI(self):
         self.setGeometry(300, 300, 600, 450)
         self.setWindowTitle('Icon')
-        self.setWindowIcon(QIcon('./samplemedia/sampleicon1.png'))
+        self.setWindowIcon(QIcon('./tutorialmedia/sampleicon1.png'))
         self.show()
         
 if __name__ == '__main__':
