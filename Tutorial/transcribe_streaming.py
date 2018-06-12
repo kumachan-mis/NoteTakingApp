@@ -141,7 +141,7 @@ def listen_print_loop(responses):
         overwrite_chars = ' ' * (num_chars_printed - len(transcript))
 
         if not result.is_final:
-            print(transcript + overwrite_chars)
+            sys.stdout.write(transcript + overwrite_chars + '\r')
             sys.stdout.flush()
 
             num_chars_printed = len(transcript)
@@ -151,8 +151,8 @@ def listen_print_loop(responses):
 
             # Exit recognition if any of the transcribed phrases could be
             # one of our keywords.
-            if re.search(r'\b(終了|止める)\b', transcript, re.I):
-                print('Exiting..')
+            if re.search(r'\b(終了|終わる)\b', transcript, re.I):
+                print('終了しています')
                 break
 
             num_chars_printed = 0
@@ -162,7 +162,7 @@ def main():
     # See http://g.co/cloud/speech/docs/languages
     # for a list of supported languages.
     language_code = 'ja-JP'  # a BCP-47 language tag
-    print("[システム] ストリーミングを開始します")
+    print("認識を開始します")
     client = speech.SpeechClient()
     config = types.RecognitionConfig(
         encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
