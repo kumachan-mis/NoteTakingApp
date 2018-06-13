@@ -7,46 +7,47 @@ import streaming
 class UserInterface(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.init_ui()
-        self.run_streaming_thread()
 
-    def init_ui(self):
+        self.__streamArea = QTextEdit()
+        self.__editArea = QTextEdit()
+        self.__hBox = QHBoxLayout()
+        self.__vBox = QVBoxLayout()
+        self.__th = streaming.StreamingThread()
+
+        self.__init_ui()
+        self.__run_streaming_thread()
+
+    def __init_ui(self):
         self.setWindowTitle("Streaming Print")
         self.resize(800, 600)
-        self.center()
+        self.__center()
 
-        self.streamArea = QTextEdit(self)
-        self.streamArea.setReadOnly(True)
-        self.streamArea.append("音声認識結果を画面に表示します")
+        self.__streamArea.setReadOnly(True)
+        self.__streamArea.append("ここに音声認識結果を表示")
 
-        self.editArea = QTextEdit(self)
-        self.editArea.setReadOnly(False)
-        self.editArea.append("ここにメモ")
+        self.__editArea.setReadOnly(False)
+        self.__editArea.append("ここにメモ")
 
-        self.hBox = QHBoxLayout()
-        self.hBox.addWidget(self.streamArea)
-        self.hBox.addWidget(self.editArea)
+        self.__hBox.addWidget(self.__streamArea)
+        self.__hBox.addWidget(self.__editArea)
+        self.__vBox.addLayout(self.__hBox)
 
-        self.vBox = QVBoxLayout()
-        self.vBox.addLayout(self.hBox)
+        widget = QWidget()
+        widget.setLayout(self.__vBox)
+        self.setCentralWidget(widget)
 
-        self.widget = QWidget()
-        self.widget.setLayout(self.vBox)
-        self.setCentralWidget(self.widget)
-
-    def center(self):
+    def __center(self):
         flame = self.frameGeometry()
         center_point = QDesktopWidget().availableGeometry().center()
         flame.moveCenter(center_point)
         self.move(flame.topLeft())
 
-    def run_streaming_thread(self):
-        self.th = streaming.StreamingThread()
-        self.th.streaming_result.connect(self.show_streaming_result)
-        self.th.start()
+    def __run_streaming_thread(self):
+        self.__th.streaming_result.connect(self.__show_streaming_result)
+        self.__th.start()
 
-    def show_streaming_result(self, result):
-        self.streamArea.setText(result)
+    def __show_streaming_result(self, result):
+        self.__streamArea.setText(result)
 
 
 if __name__ == '__main__':

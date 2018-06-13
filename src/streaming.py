@@ -92,7 +92,7 @@ class StreamingThread(QThread):
     def __init__(self):
         super().__init__()
 
-    def emit_streaming_result(self, responses):
+    def __emit_streaming_result(self, responses):
         """Iterates through server responses and prints them.
         The responses passed is a generator that will block until a response
         is provided by the server.
@@ -105,7 +105,7 @@ class StreamingThread(QThread):
         final one, print a newline to preserve the finalized transcription.
         """
 
-        self.num_chars_printed = 0
+        num_chars_printed = 0
         for response in responses:
             if not response.results:
                 continue
@@ -113,52 +113,51 @@ class StreamingThread(QThread):
             # The `results` list is consecutive. For streaming, we only care about
             # the first result being considered, since once it's `is_final`, it
             # moves on to considering the next utterance.
-            self.result = response.results[0]
-            if not self.result.alternatives:
+            result = response.results[0]
+            if not result.alternatives:
                 continue
 
             # Display the transcription of the top alternative.
-            self.transcript = self.result.alternatives[0].transcript
+            transcript = result.alternatives[0].transcript
 
             # Display interim results, but with a carriage return at the end of the
             # line, so subsequent lines will overwrite them.
             #
             # If the previous result was longer than this one, we need to print
             # some extra spaces to overwrite the previous result
-            self.overwrite_chars = ' ' * (self.num_chars_printed - len(self.transcript))
+            overwrite_chars = ' ' * (num_chars_printed - len(transcript))
 
-            if not self.result.is_final:
-                self.streaming_result.emit(self.transcript + self.overwrite_chars)
-                self.num_chars_printed = len(self.transcript)
+            if not result.is_final:
+                self.streaming_result.emit(transcript + overwrite_chars)
+                num_chars_printed = len(transcript)
 
             else:
-                self.streaming_result.emit(self.transcript + self.overwrite_chars)
+                self.streaming_result.emit(transcript + overwrite_chars)
+                num_chars_printed = 0
 
-                self.num_chars_printed = 0
-
-    def do_streaming(self):
+    def __do_streaming(self):
         language_code = 'ja-JP'
 
         print("認識開始")
 
-        self.client = speech.SpeechClient()
-        self.config = types.RecognitionConfig(
+        client = speech.SpeechClient()
+        config = types.RecognitionConfig(
             encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
             sample_rate_hertz=RATE,
             language_code=language_code)
         streaming_config = types.StreamingRecognitionConfig(
-            config=self.config,
+            config=config,
             interim_results=True)
 
         with MicrophoneStream(RATE, CHUNK) as stream:
-            self.audio_generator = stream.generator()
-            self.requests = (types.StreamingRecognizeRequest(audio_content=content)
-                        for content in self.audio_generator)
+            audio_generator = stream.generator()
+            requests = (types.StreamingRecognizeRequest(audio_content=content)
+                        for content in audio_generator)
 
-            self.responses = self.client.streaming_recognize(streaming_config, self.requests)
+            responses = client.streaming_recognize(streaming_config, requests)
 
             # Now, put the transcription responses to use.
-            self.emit_streaming_result(self.responses)
+            self.__emit_streaming_result(responses)
 
     def run(self):
-        self.do_streaming()
+        self.__do_streaming()
