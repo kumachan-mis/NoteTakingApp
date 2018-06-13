@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 import sys
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QWidget
+from PyQt5.QtWidgets import QTextEdit, QHBoxLayout, QVBoxLayout
 import streaming
 
 
@@ -19,7 +20,9 @@ class UserInterface(QMainWindow):
 
     def __init_ui(self):
         self.setWindowTitle("Streaming Print")
-        self.resize(800, 600)
+
+        screen = QApplication.desktop()
+        self.resize(4*screen.width()/5, 4*screen.height()/5)
         self.__center()
 
         self.__streamArea.setReadOnly(True)
