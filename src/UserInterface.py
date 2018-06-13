@@ -1,7 +1,8 @@
 #!/usr/local/bin/python3
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QWidget
-from PyQt5.QtWidgets import QTextEdit, QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import QVBoxLayout, QSplitter, QTextEdit
+from PyQt5.QtCore import Qt
 import streaming
 
 
@@ -11,8 +12,9 @@ class UserInterface(QMainWindow):
 
         self.__streamArea = QTextEdit()
         self.__editArea = QTextEdit()
-        self.__hBox = QHBoxLayout()
+        self.__splitter = QSplitter(Qt.Vertical)
         self.__vBox = QVBoxLayout()
+
         self.__th = streaming.StreamingThread()
 
         self.__init_ui()
@@ -31,9 +33,10 @@ class UserInterface(QMainWindow):
         self.__editArea.setReadOnly(False)
         self.__editArea.append("ここにメモ")
 
-        self.__hBox.addWidget(self.__streamArea)
-        self.__hBox.addWidget(self.__editArea)
-        self.__vBox.addLayout(self.__hBox)
+        self.__splitter.addWidget(self.__editArea)
+        self.__splitter.addWidget(self.__streamArea)
+        self.__vBox.addWidget(self.__splitter)
+        self.__splitter.moveSplitter(self.height()/2 , 1)
 
         widget = QWidget()
         widget.setLayout(self.__vBox)
