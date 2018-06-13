@@ -138,7 +138,7 @@ class StreamingThread(QThread):
     def __do_streaming(self):
         language_code = 'ja-JP'
 
-        print("認識開始")
+        # print("認識開始")
 
         client = speech.SpeechClient()
         config = types.RecognitionConfig(
