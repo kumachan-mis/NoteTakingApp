@@ -11,7 +11,7 @@ class UserInterface(QMainWindow):
         super().__init__()
         self.__memoArea = QTextEdit()
         self.__streamArea = QTextEdit()
-        self.__genTextBox = QPushButton()
+        self.__genMemoBox = QPushButton()
         self.__th = streaming.StreamingThread()
 
         self.__init_ui()
@@ -37,8 +37,8 @@ class UserInterface(QMainWindow):
         self.__memoArea.setReadOnly(False)
         self.__memoArea.append("ここにメモ")
 
-        self.__genTextBox.setText("新規ボックスを作成")
-        self.__genTextBox.clicked.connect(self.__generate_new_box)
+        self.__genMemoBox.setText("新規ボックスを作成")
+        self.__genMemoBox.clicked.connect(self.__generate_new_box)
 
         self.__streamArea.setReadOnly(False)
         self.__streamArea.append("ここに音声認識結果を表示")
@@ -60,7 +60,7 @@ class UserInterface(QMainWindow):
         memo_widget.setLayout(hBox)
 
         hBox = QHBoxLayout()
-        hBox.addWidget(self.__genTextBox)
+        hBox.addWidget(self.__genMemoBox)
         hBox.addWidget(self.__streamArea)
         stream_widget = QWidget()
         stream_widget.setLayout(hBox)
