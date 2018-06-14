@@ -1,3 +1,6 @@
+# a little change from transcribe_streaming_mic.py(Copyright 2017 Google Inc),
+# a sample usage of Google Cloud Speech API
+
 from __future__ import division
 import sys
 import pyaudio
@@ -108,10 +111,10 @@ def emit_streaming_result(responses, thread):
         overwrite_chars = ' ' * (num_chars_printed - len(transcript))
 
         if not result.is_final:
-            thread.streaming_result.emit(transcript + overwrite_chars + '\r')
+            thread.streaming_result.emit(transcript + overwrite_chars + '\n')
             sys.stdout.flush()
             num_chars_printed = len(transcript)
 
         else:
-            thread.streaming_result.emit(transcript + overwrite_chars)
+            thread.streaming_result.emit(transcript + overwrite_chars + '\n')
             num_chars_printed = 0
