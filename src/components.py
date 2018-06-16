@@ -12,23 +12,21 @@ class MemoBox(QWidget):
     def set_max_page(max_page):
         MemoBox.maxPage = max_page
 
-    def __init__(self, index):
+    def __init__(self, relatedPage):
         super().__init__()
 
         self.__comboBox = QComboBox()
 
-        self.__init_combo(index)
+        self.__init_combo(relatedPage)
         self.__init_memo_box()
 
-    def __init_combo(self, index):
+    def __init_combo(self, relatedPage):
         self.__comboBox.setEditable(False)
-        self.index = index
 
         for page_num in range(1, MemoBox.maxPage + 1):
             self.__comboBox.addItem(str(page_num))
 
-        self.__comboBox.setCurrentIndex(self.index)
-        self.__comboBox.currentIndexChanged.connect(self.__set_index)
+        self.__comboBox.setCurrentIndex(relatedPage - 1)
 
     def __init_memo_box(self):
         grid = QGridLayout()
@@ -51,6 +49,5 @@ class MemoBox(QWidget):
         self.deleted.emit(self)
         self.deleteLater()
 
-    def __set_index(self, index):
-        self.index = index
-
+    def current_related_page(self) -> int:
+        return self.__comboBox.currentIndex() + 1

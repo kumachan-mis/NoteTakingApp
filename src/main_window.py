@@ -85,11 +85,11 @@ class UserInterface(QMainWindow):
 
     def __generate_new_box(self):
         if not self.__memoBoxes:
-            index = 0
+            relatedPage = 1
         else:
-            index = self.__memoBoxes[-1].index
+            relatedPage = self.__memoBoxes[-1].current_related_page()
 
-        box = MemoBox(index)
+        box = MemoBox(relatedPage)
         box.deleted.connect(self.remove_from_list)
         self.__scroll_splitter.addWidget(box)
         self.__memoBoxes.append(box)
