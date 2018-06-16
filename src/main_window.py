@@ -26,7 +26,7 @@ class UserInterface(QWidget):
         self.setWindowTitle("Streaming Print")
 
         screen = QApplication.desktop()
-        self.resize(4*screen.width()/5, 4*screen.height()/5)
+        self.resize(9*screen.width()/10, 4*screen.height()/5)
         self.__center()
 
         self.__set_components()
@@ -60,11 +60,10 @@ class UserInterface(QWidget):
         inner.setLayout(v_box)
         scroll.setWidget(inner)
 
-        h_box = QHBoxLayout()
-        h_box.addWidget(scroll)
-        h_box.addWidget(self.__doc_area)
-        memo_widget = QWidget()
-        memo_widget.setLayout(h_box)
+        memo_widget = QSplitter(Qt.Horizontal)
+        memo_widget.addWidget(scroll)
+        memo_widget.addWidget(self.__doc_area)
+        memo_widget.setSizes([self.width() / 3, 2 * self.width() / 3])
 
         h_box = QHBoxLayout()
         h_box.addWidget(self.__gen_memo_box)
@@ -76,7 +75,7 @@ class UserInterface(QWidget):
         splitter = QSplitter(Qt.Vertical)
         splitter.addWidget(memo_widget)
         splitter.addWidget(stream_widget)
-        splitter.moveSplitter(self.height() / 2, 1)
+        splitter.setSizes([4 * self.height() / 5, self.height() / 5])
         v_box.addWidget(splitter)
 
         self.setLayout(v_box)

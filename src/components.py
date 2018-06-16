@@ -30,9 +30,9 @@ class MemoBox(QWidget):
 
     def __init_memo_box(self):
         grid = QGridLayout()
-        label_about = QLabel("テーマ名：")
+        label_about = QLabel("テーマ")
         title_area = QLineEdit()
-        label_page = QLabel("ページ：")
+        label_page = QLabel("ページ")
         delete_button = QPushButton("削除")
         memo_area = QTextEdit()
 
