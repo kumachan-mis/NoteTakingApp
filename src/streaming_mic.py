@@ -111,10 +111,10 @@ def emit_streaming_result(responses, thread):
         overwrite_chars = ' ' * (num_chars_printed - len(transcript))
 
         if not result.is_final:
-            thread.streaming_result.emit(transcript + overwrite_chars + '\n')
+            thread.streaming_result.emit(transcript + overwrite_chars)
             sys.stdout.flush()
             num_chars_printed = len(transcript)
 
         else:
-            thread.streaming_result.emit(transcript + overwrite_chars + '\n')
+            thread.streaming_result.emit(transcript + overwrite_chars + "\n")
             num_chars_printed = 0

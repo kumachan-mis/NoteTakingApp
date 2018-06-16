@@ -48,7 +48,7 @@ class UserInterface(QWidget):
         self.__gen_memo_box.clicked.connect(self.__generate_new_box)
 
         self.__stream_area.setReadOnly(False)
-        self.__stream_area.append("ここに音声認識結果を表示")
+        self.__stream_area.append("[音声認識結果]")
 
     def __set_window_layout(self):
         scroll = QScrollArea()
