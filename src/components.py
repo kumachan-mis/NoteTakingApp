@@ -14,9 +14,7 @@ class MemoBox(QWidget):
 
     def __init__(self, related_page):
         super().__init__()
-
         self.__combo_box = QComboBox()
-
         self.__init_combo(related_page)
         self.__init_memo_box()
 

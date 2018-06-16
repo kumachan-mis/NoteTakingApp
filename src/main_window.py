@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3
 import sys
 from PyQt5.QtWidgets import QApplication, QDesktopWidget
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QSplitter, QScrollArea
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QSplitter, QScrollArea, QMessageBox
 from PyQt5.QtCore import Qt
 import streaming
 from components import *
@@ -20,6 +20,7 @@ class UserInterface(QWidget):
 
         MemoBox.set_max_page(10)
         self.__init_ui()
+        self.__generate_new_box()
         self.__run_streaming_thread()
 
     def __init_ui(self):
@@ -97,6 +98,16 @@ class UserInterface(QWidget):
 
     def remove_from_list(self, deleted):
         self.__memo_boxes.remove(deleted)
+
+    def closeEvent(self, event):
+        get_reply = QMessageBox.question(self, 'close', 'ウィンドウを閉じていいですか？',
+                                         QMessageBox.Yes | QMessageBox.No,
+                                         QMessageBox.No)
+
+        if get_reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 
 if __name__ == '__main__':
