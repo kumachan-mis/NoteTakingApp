@@ -5,43 +5,45 @@ from PyQt5.QtCore import pyqtSignal
 
 
 class MemoBox(QWidget):
-    maxPage = 1
+    max_page = 1
     deleted = pyqtSignal('QWidget')
 
     @staticmethod
     def set_max_page(max_page):
-        MemoBox.maxPage = max_page
+        MemoBox.max_page = max_page
 
-    def __init__(self, relatedPage):
+    def __init__(self, related_page):
         super().__init__()
 
-        self.__comboBox = QComboBox()
+        self.__combo_box = QComboBox()
 
-        self.__init_combo(relatedPage)
+        self.__init_combo(related_page)
         self.__init_memo_box()
 
-    def __init_combo(self, relatedPage):
-        self.__comboBox.setEditable(False)
+    def __init_combo(self, related_page):
+        self.__combo_box.setEditable(False)
 
-        for page_num in range(1, MemoBox.maxPage + 1):
-            self.__comboBox.addItem(str(page_num))
+        for page_num in range(1, MemoBox.max_page + 1):
+            self.__combo_box.addItem(str(page_num))
 
-        self.__comboBox.setCurrentIndex(relatedPage - 1)
+        self.__combo_box.setCurrentIndex(related_page - 1)
 
     def __init_memo_box(self):
         grid = QGridLayout()
-        labelAbout = QLabel("テーマ名")
-        titleArea = QLineEdit()
-        deleteButton = QPushButton("削除")
-        memoArea = QTextEdit()
+        label_about = QLabel("テーマ名：")
+        title_area = QLineEdit()
+        label_page = QLabel("ページ：")
+        delete_button = QPushButton("削除")
+        memo_area = QTextEdit()
 
-        deleteButton.clicked.connect(self.__delete)
+        delete_button.clicked.connect(self.__delete)
 
-        grid.addWidget(labelAbout,      0, 0, 1, 1)
-        grid.addWidget(titleArea,       0, 1, 1, 5)
-        grid.addWidget(self.__comboBox, 0, 6, 1, 1)
-        grid.addWidget(deleteButton,    0, 7, 1, 1)
-        grid.addWidget(memoArea,        1, 0, 6, 8)
+        grid.addWidget(label_about,      0, 0, 1, 1)
+        grid.addWidget(title_area,       0, 1, 1, 5)
+        grid.addWidget(label_page,       0, 6, 1, 1)
+        grid.addWidget(self.__combo_box, 0, 7, 1, 1)
+        grid.addWidget(delete_button,    0, 8, 1, 1)
+        grid.addWidget(memo_area,        1, 0, 7, 9)
 
         self.setLayout(grid)
 
@@ -49,5 +51,5 @@ class MemoBox(QWidget):
         self.deleted.emit(self)
         self.deleteLater()
 
-    def current_related_page(self) -> int:
-        return self.__comboBox.currentIndex() + 1
+    def current_related_page(self):
+        return self.__combo_box.currentIndex() + 1

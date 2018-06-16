@@ -1,19 +1,21 @@
 #!/usr/local/bin/python3
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QWidget
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QSplitter, QScrollArea, QTextEdit, QPushButton
+from PyQt5.QtWidgets import QApplication, QDesktopWidget
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QSplitter, QScrollArea
 from PyQt5.QtCore import Qt
 import streaming
 from components import *
 
 
-class UserInterface(QMainWindow):
+class UserInterface(QWidget):
     def __init__(self):
         super().__init__()
-        self.__memoBoxes = []
-        self.__memoArea = QTextEdit()
-        self.__streamArea = QTextEdit()
-        self.__genMemoBox = QPushButton()
+        self.__memo_boxes = []
+        # 仮置き(ここから)
+        self.__doc_area = QTextEdit()
+        # 仮置き(ここまで)
+        self.__stream_area = QTextEdit()
+        self.__gen_memo_box = QPushButton()
         self.__th = streaming.StreamingThread()
 
         MemoBox.set_max_page(10)
@@ -37,65 +39,65 @@ class UserInterface(QMainWindow):
         self.move(flame.topLeft())
 
     def __set_components(self):
-        self.__memoArea.setReadOnly(False)
-        self.__memoArea.append("ここにメモ")
+        # 仮置き(ここから)
+        self.__doc_area.setReadOnly(True)
+        self.__doc_area.append("ここに講義資料を表示")
+        # 仮置き(ここまで)
 
-        self.__genMemoBox.setText("新規ボックスを作成")
-        self.__genMemoBox.clicked.connect(self.__generate_new_box)
+        self.__gen_memo_box.setText("新規ボックスを作成")
+        self.__gen_memo_box.clicked.connect(self.__generate_new_box)
 
-        self.__streamArea.setReadOnly(False)
-        self.__streamArea.append("ここに音声認識結果を表示")
+        self.__stream_area.setReadOnly(False)
+        self.__stream_area.append("ここに音声認識結果を表示")
 
     def __set_window_layout(self):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         inner = QWidget()
-        vBox = QVBoxLayout(inner)
+        v_box = QVBoxLayout(inner)
         self.__scroll_splitter = QSplitter(Qt.Vertical)
-        vBox.addWidget(self.__scroll_splitter)
-        inner.setLayout(vBox)
+        v_box.addWidget(self.__scroll_splitter)
+        inner.setLayout(v_box)
         scroll.setWidget(inner)
 
-        hBox = QHBoxLayout()
-        hBox.addWidget(scroll)
-        hBox.addWidget(self.__memoArea)
+        h_box = QHBoxLayout()
+        h_box.addWidget(scroll)
+        h_box.addWidget(self.__doc_area)
         memo_widget = QWidget()
-        memo_widget.setLayout(hBox)
+        memo_widget.setLayout(h_box)
 
-        hBox = QHBoxLayout()
-        hBox.addWidget(self.__genMemoBox)
-        hBox.addWidget(self.__streamArea)
+        h_box = QHBoxLayout()
+        h_box.addWidget(self.__gen_memo_box)
+        h_box.addWidget(self.__stream_area)
         stream_widget = QWidget()
-        stream_widget.setLayout(hBox)
+        stream_widget.setLayout(h_box)
 
-        vBox = QVBoxLayout()
+        v_box = QVBoxLayout()
         splitter = QSplitter(Qt.Vertical)
         splitter.addWidget(memo_widget)
         splitter.addWidget(stream_widget)
         splitter.moveSplitter(self.height() / 2, 1)
-        vBox.addWidget(splitter)
+        v_box.addWidget(splitter)
 
-        widget = QWidget()
-        widget.setLayout(vBox)
-        self.setCentralWidget(widget)
+        self.setLayout(v_box)
 
     def __run_streaming_thread(self):
-        self.__th.streaming_result.connect(self.__streamArea.append)
+        self.__th.streaming_result.connect(self.__stream_area.append)
         self.__th.start()
 
     def __generate_new_box(self):
-        if not self.__memoBoxes:
-            relatedPage = 1
+        if not self.__memo_boxes:
+            related_page = 1
         else:
-            relatedPage = self.__memoBoxes[-1].current_related_page()
+            related_page = self.__memo_boxes[-1].current_related_page()
 
-        box = MemoBox(relatedPage)
+        box = MemoBox(related_page)
         box.deleted.connect(self.remove_from_list)
         self.__scroll_splitter.addWidget(box)
-        self.__memoBoxes.append(box)
+        self.__memo_boxes.append(box)
 
     def remove_from_list(self, deleted):
-        self.__memoBoxes.remove(deleted)
+        self.__memo_boxes.remove(deleted)
 
 
 if __name__ == '__main__':
