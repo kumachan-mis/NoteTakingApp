@@ -4,16 +4,19 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QWidget
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QSplitter, QScrollArea, QTextEdit, QPushButton
 from PyQt5.QtCore import Qt
 import streaming
+from components import *
 
 
 class UserInterface(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.__memoBoxes = []
         self.__memoArea = QTextEdit()
         self.__streamArea = QTextEdit()
         self.__genMemoBox = QPushButton()
         self.__th = streaming.StreamingThread()
 
+        MemoBox.set_max_page(10)
         self.__init_ui()
         self.__run_streaming_thread()
 
@@ -77,11 +80,22 @@ class UserInterface(QMainWindow):
         self.setCentralWidget(widget)
 
     def __run_streaming_thread(self):
-        self.__th.streaming_result.connect(self.__streamArea.setText)
+        self.__th.streaming_result.connect(self.__streamArea.append)
         self.__th.start()
 
     def __generate_new_box(self):
-        self.__scroll_splitter.addWidget(QTextEdit())
+        if not self.__memoBoxes:
+            index = 0
+        else:
+            index = self.__memoBoxes[-1].index
+
+        box = MemoBox(index)
+        box.deleted.connect(self.remove_from_list)
+        self.__scroll_splitter.addWidget(box)
+        self.__memoBoxes.append(box)
+
+    def remove_from_list(self, deleted):
+        self.__memoBoxes.remove(deleted)
 
 
 if __name__ == '__main__':
