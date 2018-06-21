@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QDesktopWidget
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QSplitter, QScrollArea, QMessageBox
 from PyQt5.QtCore import Qt
-import streaming
+from streaming import StreamingThread
 from components import *
 
 
@@ -16,7 +16,7 @@ class UserInterface(QWidget):
         # 仮置き(ここまで)
         self.__stream_area = QTextEdit()
         self.__gen_memo_box = QPushButton()
-        self.__th = streaming.StreamingThread()
+        self.__th = StreamingThread()
 
         MemoBox.set_max_page(10)
         self.__init_ui()

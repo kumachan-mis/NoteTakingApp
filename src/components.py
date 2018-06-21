@@ -6,7 +6,7 @@ from PyQt5.QtCore import pyqtSignal
 
 class MemoBox(QWidget):
     max_page = 1
-    deleted = pyqtSignal('QWidget')
+    deleted = pyqtSignal(QWidget)
 
     @staticmethod
     def set_max_page(max_page):
