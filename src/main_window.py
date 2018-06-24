@@ -1,35 +1,39 @@
 #!/usr/local/bin/python3
 import sys
-from PyQt5.QtWidgets import QApplication, QDesktopWidget
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QSplitter, QScrollArea, QMessageBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt, QSize
 from streaming import StreamingThread
-from components import *
+from memo_box import MemoBox
+from doc_viewer import DocumentViewer
 
+# 'InfoNetA/infonet-2-protocol'
+# 'OSA/OS2018-4'
 
 class UserInterface(QWidget):
     def __init__(self):
         super().__init__()
-        self.__memo_boxes = []
-        # 仮置き(ここから)
-        self.__doc_area = QTextEdit()
-        # 仮置き(ここまで)
-        self.__stream_area = QTextEdit()
-        self.__gen_memo_box = QPushButton()
-        self.__th = StreamingThread()
+        screen = QApplication.desktop()
+        self.resize(9 * screen.width() / 10, 4 * screen.height() / 5)
+        self.__doc_area_size = QSize()
 
-        MemoBox.set_max_page(10)
+        self.__doc_area_size.setHeight(4 * self.height() / 5)
+        self.__doc_area = DocumentViewer('InfoNetA/infonet-2-protocol', self.__doc_area_size.height())
+        self.__doc_area_size.setWidth(self.__doc_area.viewer_width)
+
+        self.__gen_memo_box = QPushButton()
+        self.__memo_boxes = []
+        MemoBox.set_max_page(self.__doc_area.max_page)
+
+        self.__stream_area = QTextEdit()
+        self.__th = StreamingThread()
+        self.__run_streaming_thread()
+
         self.__init_ui()
         self.__generate_new_box()
-        self.__run_streaming_thread()
 
     def __init_ui(self):
         self.setWindowTitle("Streaming Print")
-
-        screen = QApplication.desktop()
-        self.resize(9*screen.width()/10, 4*screen.height()/5)
         self.__center()
-
         self.__set_components()
         self.__set_window_layout()
 
@@ -40,11 +44,6 @@ class UserInterface(QWidget):
         self.move(flame.topLeft())
 
     def __set_components(self):
-        # 仮置き(ここから)
-        self.__doc_area.setReadOnly(True)
-        self.__doc_area.append("ここに講義資料を表示")
-        # 仮置き(ここまで)
-
         self.__gen_memo_box.setText("新規ボックスを作成")
         self.__gen_memo_box.clicked.connect(self.__generate_new_box)
 
@@ -64,7 +63,7 @@ class UserInterface(QWidget):
         memo_widget = QSplitter(Qt.Horizontal)
         memo_widget.addWidget(scroll)
         memo_widget.addWidget(self.__doc_area)
-        memo_widget.setSizes([self.width() / 3, 2 * self.width() / 3])
+        memo_widget.setSizes([self.width() - self.__doc_area_size.width(), self.__doc_area_size.width()])
 
         h_box = QHBoxLayout()
         h_box.addWidget(self.__gen_memo_box)
@@ -76,7 +75,7 @@ class UserInterface(QWidget):
         splitter = QSplitter(Qt.Vertical)
         splitter.addWidget(memo_widget)
         splitter.addWidget(stream_widget)
-        splitter.setSizes([4 * self.height() / 5, self.height() / 5])
+        splitter.setSizes([self.__doc_area_size.height(), self.height() - self.__doc_area_size.height()])
         v_box.addWidget(splitter)
 
         self.setLayout(v_box)
@@ -92,11 +91,11 @@ class UserInterface(QWidget):
             related_page = self.__memo_boxes[-1].current_related_page()
 
         box = MemoBox(related_page)
-        box.deleted.connect(self.remove_from_list)
+        box.deleted.connect(self.__remove_from_list)
         self.__scroll_splitter.addWidget(box)
         self.__memo_boxes.append(box)
 
-    def remove_from_list(self, deleted):
+    def __remove_from_list(self, deleted):
         self.__memo_boxes.remove(deleted)
 
     def closeEvent(self, event):
