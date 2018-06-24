@@ -108,7 +108,6 @@ class UserInterface(QWidget):
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
     print("講義資料のファイル名を拡張子(.pdf)なしで入力してください")
     sys.stdout.write(DocumentViewer.dir_path_header)
     filename = input()
@@ -120,6 +119,7 @@ if __name__ == '__main__':
         filename = input()
         pdf_path = path.join(DocumentViewer.dir_path_header, filename + '.pdf')
 
+    app = QApplication(sys.argv)
     ui = UserInterface(filename)
     ui.show()
     sys.exit(app.exec_())

@@ -38,6 +38,8 @@ class DocumentViewer(QWidget):
             image.save(save_path.format(page), 'png')
             page = page + 1
 
+        print('読み込みが完了しました.')
+
     def __get_doc_image(self, viewer_width):
         for image_path in sorted(glob(os.path.join(self.__image_dir_path, '*.png'))):
             pix_map = QPixmap(image_path).scaledToWidth(viewer_width)
