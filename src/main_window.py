@@ -1,21 +1,20 @@
 #!/usr/local/bin/python3
 import sys
+from os import path
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QSize
 from streaming import StreamingThread
 from memo_box import MemoBox
 from doc_viewer import DocumentViewer
 
-# 'InfoNetA/infonet-2-protocol'
-# 'OSA/OS2018-4'
 
 class UserInterface(QWidget):
-    def __init__(self):
+    def __init__(self, filename):
         super().__init__()
         screen = QApplication.desktop()
         self.resize(9 * screen.width() / 10, 4 * screen.height() / 5)
         self.__doc_area_size = QSize(3 * self.width() / 5, 4 * self.height() / 5)
-        self.__doc_area = DocumentViewer('InfoNetA/infonet-2-protocol', self.__doc_area_size.width())
+        self.__doc_area = DocumentViewer(filename, self.__doc_area_size.width())
 
         self.__gen_memo_box = QPushButton()
         self.__memo_boxes = []
@@ -110,6 +109,17 @@ class UserInterface(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ui = UserInterface()
+    print("講義資料のファイル名を拡張子(.pdf)なしで入力してください")
+    sys.stdout.write(DocumentViewer.dir_path_header)
+    filename = input()
+    pdf_path = path.join(DocumentViewer.dir_path_header, filename + '.pdf')
+
+    while not path.isfile(pdf_path):
+        print("講義資料が見つかりませんでした. やり直してください.")
+        sys.stdout.write(DocumentViewer.dir_path_header)
+        filename = input()
+        pdf_path = path.join(DocumentViewer.dir_path_header, filename + '.pdf')
+
+    ui = UserInterface(filename)
     ui.show()
     sys.exit(app.exec_())

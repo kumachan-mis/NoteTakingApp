@@ -23,7 +23,6 @@ class DocumentViewer(QWidget):
 
     def __make_image_dir(self, filename):
         if os.path.isdir(self.__image_dir_path):
-            print(self.__image_dir_path + '　が見つかりました')
             return
 
         print(self.__image_dir_path + '　を新規作成します')
