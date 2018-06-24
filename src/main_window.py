@@ -14,11 +14,8 @@ class UserInterface(QWidget):
         super().__init__()
         screen = QApplication.desktop()
         self.resize(9 * screen.width() / 10, 4 * screen.height() / 5)
-        self.__doc_area_size = QSize()
-
-        self.__doc_area_size.setHeight(4 * self.height() / 5)
-        self.__doc_area = DocumentViewer('InfoNetA/infonet-2-protocol', self.__doc_area_size.height())
-        self.__doc_area_size.setWidth(self.__doc_area.viewer_width)
+        self.__doc_area_size = QSize(3 * self.width() / 5, 4 * self.height() / 5)
+        self.__doc_area = DocumentViewer('InfoNetA/infonet-2-protocol', self.__doc_area_size.width())
 
         self.__gen_memo_box = QPushButton()
         self.__memo_boxes = []
@@ -86,12 +83,14 @@ class UserInterface(QWidget):
 
     def __generate_new_box(self):
         if not self.__memo_boxes:
-            related_page = 1
+            related_page = 0
         else:
             related_page = self.__memo_boxes[-1].current_related_page()
 
         box = MemoBox(related_page)
         box.deleted.connect(self.__remove_from_list)
+        box.jump.connect(self.__doc_area.turn_page)
+
         self.__scroll_splitter.addWidget(box)
         self.__memo_boxes.append(box)
 
