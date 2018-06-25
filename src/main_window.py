@@ -3,6 +3,7 @@ from sys import argv, exit
 from os import path
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QSize
+from make_dir_progress import MakeDirProgress
 from streaming import StreamingThread
 from memo_box import MemoBox
 from doc_viewer import DocumentViewer
@@ -115,5 +116,6 @@ if __name__ == '__main__':
     if path.splitext(pdf_path)[1] != '.pdf':
         exit()
 
+    make_dir = MakeDirProgress(pdf_path)
     ui = UserInterface(pdf_path)
     exit(app.exec_())
