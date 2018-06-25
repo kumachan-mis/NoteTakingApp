@@ -1,4 +1,5 @@
 #!/usr/local/bin/python3
+from sys import exit
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QSize
 from streaming import StreamingThread
@@ -101,5 +102,6 @@ class UserInterface(QDialog):
 
         if get_reply == QMessageBox.Yes:
             event.accept()
+            exit()
         else:
             event.ignore()

@@ -18,7 +18,7 @@ class MakeDirProgress(QDialog):
         self.__progress = QProgressBar()
         self.__th = ProgressThread(pdf_path)
         self.__run_progress_thread()
-        self.__closed.connect(MakeDirProgress.__gen_main_window)
+        self.__closed.connect(self.__gen_main_window)
 
         self.__init_ui()
         self.exec_()
@@ -64,8 +64,7 @@ class MakeDirProgress(QDialog):
         self.__th.a_image_loaded.connect(self.__update_progress)
         self.__th.start()
 
-    @staticmethod
-    def __gen_main_window(pdf_path):
+    def __gen_main_window(self, pdf_path):
         ui = UserInterface(pdf_path)
         ui.exec_()
 
@@ -109,4 +108,3 @@ if __name__ == '__main__':
         exit()
 
     make_dir = MakeDirProgress(pdf_path)
-    exit(app.exec_())
