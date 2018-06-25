@@ -1,12 +1,14 @@
 #!/usr/local/bin/python3
 from os import path, makedirs
 from pdf2image import convert_from_path
-from PyQt5.QtWidgets import QWidget, QLabel, QProgressBar, QVBoxLayout
+from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread
 from PyQt5.Qt import pyqtSignal
 
 
 class MakeDirProgress(QWidget):
+    closed = pyqtSignal()
+
     def __init__(self, pdf_path):
         super().__init__()
         self.__loading_filename = QLabel()
@@ -18,26 +20,43 @@ class MakeDirProgress(QWidget):
         self.show()
 
     def __init_ui(self):
+        screen = QApplication.desktop()
+        self.resize(screen.width() / 4, screen.height() / 4)
         self.setWindowTitle('講義資料読み込み')
-        load = QLabel('読み込み中... しばらくお待ちください.')
+        self.__center()
 
         v_box = QVBoxLayout()
+        load = QLabel('読み込み中... しばらくお待ちください.')
         v_box.addWidget(load)
         v_box.addWidget(self.__loading_filename)
         v_box.addWidget(self.__progress)
         self.setLayout(v_box)
 
+    def __center(self):
+        flame = self.frameGeometry()
+        center_point = QDesktopWidget().availableGeometry().center()
+        flame.moveCenter(center_point)
+        self.move(flame.topLeft())
+
     def __init_progress(self, max):
-        self.__progress.setRange(0, max)
+        if max == -1:
+            self.close()
+            self.closed.emit()
+        else:
+            self.__progress.setRange(0, max)
 
     def __update_progress(self, value, finename):
         self.__loading_filename.setText(finename)
         self.__progress.setValue(value)
 
+        if value == self.__progress.maximum():
+            self.close()
+            self.closed.emit()
+
     def __run_progress_thread(self):
         self.__th.load_ready.connect(self.__init_progress)
         self.__th.a_image_loaded.connect(self.__update_progress)
-        self.__th.run()
+        self.__th.start()
 
 
 class ProgressThread(QThread):
@@ -53,6 +72,7 @@ class ProgressThread(QThread):
         image_dir_path = path.join('../images', filename)
 
         if path.isdir(image_dir_path):
+            self.load_ready.emit(-1)
             return
 
         makedirs(image_dir_path)
