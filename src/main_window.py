@@ -1,5 +1,5 @@
 #!/usr/local/bin/python3
-import sys
+from sys import argv, exit
 from os import path
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QSize
@@ -9,12 +9,12 @@ from doc_viewer import DocumentViewer
 
 
 class UserInterface(QWidget):
-    def __init__(self, filename):
+    def __init__(self, pdf_path):
         super().__init__()
         screen = QApplication.desktop()
         self.resize(9 * screen.width() / 10, 4 * screen.height() / 5)
         self.__doc_area_size = QSize(3 * self.width() / 5, 4 * self.height() / 5)
-        self.__doc_area = DocumentViewer(filename, self.__doc_area_size.width())
+        self.__doc_area = DocumentViewer(pdf_path, self.__doc_area_size.width())
 
         self.__gen_memo_box = QPushButton()
         self.__memo_boxes = []
@@ -26,6 +26,7 @@ class UserInterface(QWidget):
 
         self.__init_ui()
         self.__generate_new_box()
+        self.show()
 
     def __init_ui(self):
         self.setWindowTitle("Streaming Print")
@@ -108,18 +109,11 @@ class UserInterface(QWidget):
 
 
 if __name__ == '__main__':
-    print("講義資料のファイル名を拡張子(.pdf)なしで入力してください")
-    sys.stdout.write(DocumentViewer.dir_path_header)
-    filename = input()
-    pdf_path = path.join(DocumentViewer.dir_path_header, filename + '.pdf')
+    app = QApplication(argv)
+    pdf_path = QFileDialog.getOpenFileName(QFileDialog(), 'Open File',
+                                           path.expanduser('~') + '/Desktop', '*.pdf')[0]
+    if path.splitext(pdf_path)[1] != '.pdf':
+        exit()
 
-    while not path.isfile(pdf_path):
-        print("講義資料が見つかりませんでした. やり直してください.")
-        sys.stdout.write(DocumentViewer.dir_path_header)
-        filename = input()
-        pdf_path = path.join(DocumentViewer.dir_path_header, filename + '.pdf')
-
-    app = QApplication(sys.argv)
-    ui = UserInterface(filename)
-    ui.show()
-    sys.exit(app.exec_())
+    ui = UserInterface(pdf_path)
+    exit(app.exec_())
