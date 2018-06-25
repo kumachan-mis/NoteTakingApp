@@ -1,15 +1,12 @@
 #!/usr/local/bin/python3
-from sys import argv, exit
-from os import path
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QSize
-from make_dir_progress import MakeDirProgress
 from streaming import StreamingThread
 from memo_box import MemoBox
 from doc_viewer import DocumentViewer
 
 
-class UserInterface(QWidget):
+class UserInterface(QDialog):
     def __init__(self, pdf_path):
         super().__init__()
         screen = QApplication.desktop()
@@ -27,7 +24,6 @@ class UserInterface(QWidget):
 
         self.__init_ui()
         self.__generate_new_box()
-        self.show()
 
     def __init_ui(self):
         self.setWindowTitle("Streaming Print")
@@ -107,15 +103,3 @@ class UserInterface(QWidget):
             event.accept()
         else:
             event.ignore()
-
-
-if __name__ == '__main__':
-    app = QApplication(argv)
-    pdf_path = QFileDialog.getOpenFileName(QFileDialog(), 'Open File',
-                                           path.expanduser('~') + '/Desktop', '*.pdf')[0]
-    if path.splitext(pdf_path)[1] != '.pdf':
-        exit()
-
-    make_dir = MakeDirProgress(pdf_path)
-    ui = UserInterface(pdf_path)
-    exit(app.exec_())

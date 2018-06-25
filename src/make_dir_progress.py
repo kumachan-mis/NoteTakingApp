@@ -1,23 +1,27 @@
 #!/usr/local/bin/python3
+from sys import argv, exit
 from os import path, makedirs
 from pdf2image import convert_from_path
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread
 from PyQt5.Qt import pyqtSignal
+from main_window import UserInterface
 
 
-class MakeDirProgress(QWidget):
-    closed = pyqtSignal()
+class MakeDirProgress(QDialog):
+    __closed = pyqtSignal(str)
 
     def __init__(self, pdf_path):
         super().__init__()
+        self.__pdf_path = pdf_path
         self.__loading_filename = QLabel()
         self.__progress = QProgressBar()
         self.__th = ProgressThread(pdf_path)
         self.__run_progress_thread()
+        self.__closed.connect(MakeDirProgress.__gen_main_window)
 
         self.__init_ui()
-        self.show()
+        self.exec_()
 
     def __init_ui(self):
         screen = QApplication.desktop()
@@ -40,8 +44,9 @@ class MakeDirProgress(QWidget):
 
     def __init_progress(self, max):
         if max == -1:
+            self.__th.quit()
             self.close()
-            self.closed.emit()
+            self.__closed.emit(self.__pdf_path)
         else:
             self.__progress.setRange(0, max)
 
@@ -50,13 +55,19 @@ class MakeDirProgress(QWidget):
         self.__progress.setValue(value)
 
         if value == self.__progress.maximum():
+            self.__th.quit()
             self.close()
-            self.closed.emit()
+            self.__closed.emit(self.__pdf_path)
 
     def __run_progress_thread(self):
         self.__th.load_ready.connect(self.__init_progress)
         self.__th.a_image_loaded.connect(self.__update_progress)
         self.__th.start()
+
+    @staticmethod
+    def __gen_main_window(pdf_path):
+        ui = UserInterface(pdf_path)
+        ui.exec_()
 
 
 class ProgressThread(QThread):
@@ -88,3 +99,14 @@ class ProgressThread(QThread):
 
     def run(self):
         self.__make_image_dir(self.__pdf_path)
+
+
+if __name__ == '__main__':
+    app = QApplication(argv)
+    pdf_path = QFileDialog.getOpenFileName(QFileDialog(), 'Open File',
+                                           path.expanduser('~') + '/Desktop', '*.pdf')[0]
+    if path.splitext(pdf_path)[1] != '.pdf':
+        exit()
+
+    make_dir = MakeDirProgress(pdf_path)
+    exit(app.exec_())

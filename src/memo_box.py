@@ -1,12 +1,12 @@
 #!/usr/local/bin/python3
-from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QComboBox, QPushButton, QTextEdit
+from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QComboBox, QPushButton, QTextEdit
 from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtCore import pyqtSignal
 
 
-class MemoBox(QWidget):
+class MemoBox(QDialog):
     __max_page = 1
-    deleted = pyqtSignal(QWidget)
+    deleted = pyqtSignal(QDialog)
     jump = pyqtSignal(int)
 
     @staticmethod

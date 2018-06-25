@@ -1,11 +1,11 @@
 #!/usr/local/bin/python3
 from os import path
-from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QScrollArea, QPushButton
+from PyQt5.QtWidgets import QDialog, QLabel, QGridLayout, QScrollArea, QPushButton
 from PyQt5.QtGui import QPixmap
 from glob import glob
 
 
-class DocumentViewer(QWidget):
+class DocumentViewer(QDialog):
 
     def __init__(self, pdf_path, viewer_width):
         super().__init__()
@@ -38,9 +38,9 @@ class DocumentViewer(QWidget):
         self.__current_page_label.resize(self.__current_page_label.sizeHint())
 
         grid = QGridLayout()
-        grid.addWidget(previous_button,            0, 0,  1, 10)
         grid.addWidget(self.__scroll,              1, 0, 10, 10)
         grid.addWidget(next_button,               11, 0,  1,  9)
+        grid.addWidget(previous_button,            0, 0,  1, 10)
         grid.addWidget(self.__current_page_label, 11, 9,  1,  1)
 
         self.setLayout(grid)
