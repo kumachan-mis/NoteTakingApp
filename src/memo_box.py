@@ -1,10 +1,11 @@
 #!/usr/local/bin/python3
-from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QComboBox, QPushButton, QTextEdit
-from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QTextCursor
 from PyQt5.QtCore import pyqtSignal
 
 
-class MemoBox(QDialog):
+class MemoBox(QWidget):
+    end_flag = 'END\n'
     __max_page = 1
     deleted = pyqtSignal(QDialog)
     jump = pyqtSignal(int)
@@ -15,6 +16,9 @@ class MemoBox(QDialog):
 
     def __init__(self, related_page):
         super().__init__()
+        self.__title_area = QLineEdit()
+        self.__memo_area = QTextEdit()
+
         self.__related_page_area = QComboBox()
         self.__init_combo(related_page)
         self.__init_memo_box()
@@ -30,22 +34,20 @@ class MemoBox(QDialog):
     def __init_memo_box(self):
         grid = QGridLayout()
         label_about = QLabel("テーマ")
-        title_area = QLineEdit()
         label_page = QLabel("ページ")
         delete_button = QPushButton("削除")
         jump_button = QPushButton("ジャンプ")
-        memo_area = QTextEdit()
 
         delete_button.clicked.connect(self.__delete)
         jump_button.clicked.connect(self.__jump_pressed)
 
         grid.addWidget(label_about,              0, 0, 1,  1)
-        grid.addWidget(title_area,               0, 1, 1,  5)
+        grid.addWidget(self.__title_area,        0, 1, 1,  5)
         grid.addWidget(label_page,               0, 6, 1,  1)
         grid.addWidget(self.__related_page_area, 0, 7, 1,  1)
         grid.addWidget(jump_button,              0, 8, 1,  1)
         grid.addWidget(delete_button,            0, 9, 1,  1)
-        grid.addWidget(memo_area,                1, 0, 7, 10)
+        grid.addWidget(self.__memo_area,         1, 0, 7, 10)
 
         self.setLayout(grid)
 
@@ -58,3 +60,26 @@ class MemoBox(QDialog):
 
     def current_related_page(self):
         return self.__related_page_area.currentIndex()
+
+    def read_memo_box_info(self, file):
+        self.__title_area.setText(file.readline()[:-1])
+        self.__related_page_area.setCurrentIndex(int(file.readline()[:-1]))
+        while True:
+            line = file.readline()
+            if line == MemoBox.end_flag:
+                break
+            self.__memo_area.append(line[1:-1])
+
+    def write_memo_box_info(self, file):
+        file.write(self.__title_area.text() + '\n')
+        file.write(str(self.__related_page_area.currentIndex()) + '\n')
+        cursor = self.__memo_area.textCursor()
+        cursor.movePosition(QTextCursor.Start)
+        while True:
+            if cursor.atEnd():
+                file.write(MemoBox.end_flag)
+                break
+            cursor.movePosition(QTextCursor.StartOfLine)
+            cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
+            file.write('#' + cursor.selectedText() + '\n')
+            cursor.movePosition(QTextCursor.Down)

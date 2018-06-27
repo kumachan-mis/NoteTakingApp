@@ -1,5 +1,4 @@
 #!/usr/local/bin/python3
-from sys import argv, exit
 from os import path, makedirs
 from pdf2image import convert_from_path
 from PyQt5.QtWidgets import *
@@ -65,7 +64,7 @@ class MakeDirProgress(QDialog):
         self.__th.start()
 
     def __gen_main_window(self, pdf_path):
-        ui = UserInterface(pdf_path)
+        ui = UserInterface(True, pdf_path)
         ui.exec_()
 
 
@@ -98,13 +97,3 @@ class ProgressThread(QThread):
 
     def run(self):
         self.__make_image_dir(self.__pdf_path)
-
-
-if __name__ == '__main__':
-    app = QApplication(argv)
-    pdf_path = QFileDialog.getOpenFileName(QFileDialog(), 'Open File',
-                                           path.expanduser('~') + '/Desktop', '*.pdf')[0]
-    if path.splitext(pdf_path)[1] != '.pdf':
-        exit()
-
-    make_dir = MakeDirProgress(pdf_path)
