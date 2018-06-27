@@ -120,7 +120,7 @@ class UserInterface(QDialog):
                 self.__memo_boxes[index].read_memo_box_info(file)
 
     def __save_as_file(self):
-        file_path = QFileDialog.getSaveFileName(None, 'Save File',
+        file_path = QFileDialog.getSaveFileName(None, 'ノートを保存',
                                                 path.expanduser('~') + '/Desktop', '*' + my_extension)[0]
         if file_path == '':
             return
