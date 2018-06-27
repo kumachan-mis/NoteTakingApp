@@ -1,11 +1,11 @@
 #!/usr/local/bin/python3
 from os import path
-from PyQt5.QtWidgets import QDialog, QLabel, QGridLayout, QScrollArea, QPushButton
+from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QScrollArea, QPushButton
 from PyQt5.QtGui import QPixmap
 from glob import glob
 
 
-class DocumentViewer(QDialog):
+class DocumentViewer(QWidget):
     def __init__(self, pdf_path, viewer_width):
         super().__init__()
         filename = path.splitext(path.split(pdf_path)[1])[0]
@@ -31,16 +31,18 @@ class DocumentViewer(QDialog):
 
     def __set_doc_area_layout(self):
         previous_button = QPushButton("1ページ戻る")
+        previous_button.setAutoDefault(False)
         previous_button.clicked.connect(self.__previous_page)
         next_button = QPushButton('1ページ進む')
+        next_button.setAutoDefault(True)
         next_button.clicked.connect(self.__next_page)
         self.turn_page(0)
         self.__current_page_label.resize(self.__current_page_label.sizeHint())
 
         grid = QGridLayout()
+        grid.addWidget(previous_button,            0, 0,  1, 10)
         grid.addWidget(self.__scroll,              1, 0, 10, 10)
         grid.addWidget(next_button,               11, 0,  1,  9)
-        grid.addWidget(previous_button,            0, 0,  1, 10)
         grid.addWidget(self.__current_page_label, 11, 9,  1,  1)
 
         self.setLayout(grid)

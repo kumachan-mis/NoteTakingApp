@@ -35,11 +35,12 @@ class MemoBox(QWidget):
         grid = QGridLayout()
         label_about = QLabel("テーマ")
         label_page = QLabel("ページ")
-        delete_button = QPushButton("削除")
         jump_button = QPushButton("ジャンプ")
-
-        delete_button.clicked.connect(self.__delete)
+        jump_button.setAutoDefault(False)
         jump_button.clicked.connect(self.__jump_pressed)
+        delete_button = QPushButton("削除")
+        delete_button.setAutoDefault(False)
+        delete_button.clicked.connect(self.__delete)
 
         grid.addWidget(label_about,              0, 0, 1,  1)
         grid.addWidget(self.__title_area,        0, 1, 1,  5)

@@ -44,8 +44,10 @@ class UserInterface(QDialog):
 
     def __set_components(self):
         self.__gen_memo_box.setText("新規ボックスを作成")
+        self.__gen_memo_box.setAutoDefault(False)
         self.__gen_memo_box.clicked.connect(self.__generate_new_box)
         self.__save.setText("保存")
+        self.__save.setAutoDefault(False)
         self.__save.clicked.connect(self.__save_as_file)
         self.__stream_area.setReadOnly(False)
         self.__stream_area.append("[音声認識結果]")
