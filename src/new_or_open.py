@@ -1,5 +1,4 @@
 #!/usr/local/bin/python3
-from sys import argv
 from os import path
 from PyQt5.QtWidgets import *
 from make_dir_progress import MakeDirProgress
@@ -48,9 +47,3 @@ class NewOrOpen(QDialog):
         self.close()
         ui = UserInterface(False, file_path=file_path)
         ui.exec_()
-
-
-if __name__ == '__main__':
-    app = QApplication(argv)
-    new_or_open = NewOrOpen()
-    new_or_open.exec_()
