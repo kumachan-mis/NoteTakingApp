@@ -2,6 +2,7 @@
 from sys import exit
 from os import path
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QKeySequence
 from PyQt5.QtCore import Qt, QSize
 from streaming import StreamingThread
 from memo_box import MemoBox
@@ -56,8 +57,9 @@ class UserInterface(QDialog):
         self.__save_overwrite.clicked.connect(self.__overwrite_save_file)
 
         save_action = QAction(self)
-        save_action.setShortcut('Ctrl+S')
+        save_action.setShortcut(QKeySequence('Ctrl+S'))
         save_action.triggered.connect(self.__overwrite_save_file)
+        self.addAction(save_action)
 
         self.__save_new.setText("新しいノートとして保存")
         self.__save_new.setAutoDefault(False)

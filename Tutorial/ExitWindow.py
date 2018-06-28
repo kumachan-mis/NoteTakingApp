@@ -12,7 +12,7 @@ class ExitWindow(QWidget):
 
     def initUI(self):
         self.setGeometry(100, 100, 300, 400)
-        self.setWindowTitle("exitWundow")
+        self.setWindowTitle("exitWindow")
         exit = QPushButton('exit', self)
         exit.resize(exit.sizeHint())
         exit.move(100, 200)
