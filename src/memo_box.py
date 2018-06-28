@@ -77,10 +77,10 @@ class MemoBox(QWidget):
         cursor = self.__memo_area.textCursor()
         cursor.movePosition(QTextCursor.Start)
         while True:
-            if cursor.atEnd():
-                file.write(MemoBox.end_flag)
-                break
             cursor.movePosition(QTextCursor.StartOfLine)
             cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
             file.write('#' + cursor.selectedText() + '\n')
+            if cursor.atEnd():
+                file.write(MemoBox.end_flag)
+                break
             cursor.movePosition(QTextCursor.Down)

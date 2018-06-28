@@ -95,20 +95,20 @@ class ProgressThread(QThread):
         super().__init__()
         self.__pdf_path = pdf_path
 
-    def __make_image_dir(self, pdf_path):
-        filename = path.splitext(path.split(pdf_path)[1])[0]
+    def __make_image_dir(self):
+        filename = path.splitext(path.split(self.__pdf_path)[1])[0]
         image_dir_path = path.join('../images', filename)
 
         if path.isdir(image_dir_path):
             self.load_ready.emit(-1)
             return
 
-        if not path.isfile(pdf_path):
+        if not path.isfile(self.__pdf_path):
             self.load_ready.emit(-2)
             return
 
         makedirs(image_dir_path)
-        images = convert_from_path(pdf_path)
+        images = convert_from_path(self.__pdf_path)
         self.load_ready.emit(len(images))
 
         page = 1
@@ -119,7 +119,7 @@ class ProgressThread(QThread):
             page = page + 1
 
     def run(self):
-        self.__make_image_dir(self.__pdf_path)
+        self.__make_image_dir()
 
 
 class PDFNotFound(QDialog):

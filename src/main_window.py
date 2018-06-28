@@ -13,13 +13,17 @@ my_extension = '.soundnote'
 class UserInterface(QDialog):
     def __init__(self, is_new, pdf_path = '', file_path = ''):
         super().__init__()
+
+        self.__file_path = file_path
+
         screen = QApplication.desktop()
         self.resize(9 * screen.width() / 10, 4 * screen.height() / 5)
         self.__doc_area_size = QSize(3 * self.width() / 5, 4 * self.height() / 5)
 
         self.__gen_memo_box = QPushButton()
         self.__filename_area = QLineEdit()
-        self.__save = QPushButton()
+        self.__save_overwrite = QPushButton()
+        self.__save_new = QPushButton()
         self.__memo_boxes = []
         self.__scroll_splitter = QSplitter(Qt.Vertical)
 
@@ -33,7 +37,7 @@ class UserInterface(QDialog):
         if is_new:
             self.__new_note(pdf_path)
         else:
-            self.__open_saved_file(file_path)
+            self.__open_saved_file()
         self.__set_window_layout()
 
     def __center(self):
@@ -46,9 +50,19 @@ class UserInterface(QDialog):
         self.__gen_memo_box.setText("新規ボックスを作成")
         self.__gen_memo_box.setAutoDefault(False)
         self.__gen_memo_box.clicked.connect(self.__generate_new_box)
-        self.__save.setText("保存")
-        self.__save.setAutoDefault(False)
-        self.__save.clicked.connect(self.__save_as_file)
+
+        self.__save_overwrite.setText('上書き保存(ctrl+S)')
+        self.__save_overwrite.setAutoDefault(False)
+        self.__save_overwrite.clicked.connect(self.__overwrite_save_file)
+
+        save_action = QAction(self)
+        save_action.setShortcut('Ctrl+S')
+        save_action.triggered.connect(self.__overwrite_save_file)
+
+        self.__save_new.setText("新しいノートとして保存")
+        self.__save_new.setAutoDefault(False)
+        self.__save_new.clicked.connect(self.__save_as_new_file)
+
         self.__stream_area.setReadOnly(False)
         self.__stream_area.append("[音声認識結果]")
 
@@ -66,9 +80,15 @@ class UserInterface(QDialog):
         memo_widget.addWidget(self.__doc_area)
         memo_widget.setSizes([self.width() - self.__doc_area_size.width(), self.__doc_area_size.width()])
 
+        v_box = QVBoxLayout()
+        v_box.addWidget(self.__gen_memo_box)
+        v_box.addWidget(self.__save_overwrite)
+        v_box.addWidget(self.__save_new)
+        button_widget = QWidget()
+        button_widget.setLayout(v_box)
+
         h_box = QHBoxLayout()
-        h_box.addWidget(self.__gen_memo_box)
-        h_box.addWidget(self.__save)
+        h_box.addWidget(button_widget)
         h_box.addWidget(self.__stream_area)
         stream_widget = QWidget()
         stream_widget.setLayout(h_box)
@@ -108,9 +128,9 @@ class UserInterface(QDialog):
         for index in range(3):
             self.__generate_new_box()
 
-    def __open_saved_file(self, file_path):
+    def __open_saved_file(self):
 
-        with open(file_path, 'r') as file:
+        with open(self.__file_path, 'r') as file:
             self.__doc_area = DocumentViewer(file.readline()[:-1], self.__doc_area_size.width())
             MemoBox.set_max_page(self.__doc_area.max_page)
 
@@ -119,13 +139,22 @@ class UserInterface(QDialog):
                 self.__generate_new_box()
                 self.__memo_boxes[index].read_memo_box_info(file)
 
-    def __save_as_file(self):
+    def __save_as_new_file(self):
         file_path = QFileDialog.getSaveFileName(None, 'ノートを保存',
                                                 path.expanduser('~') + '/Desktop', '*' + my_extension)[0]
         if file_path == '':
             return
+        self.__file_path = file_path
+        self.__write_file()
 
-        with open(file_path, 'w') as file:
+    def __overwrite_save_file(self):
+        if self.__file_path == '':
+            self.__save_as_new_file()
+            return
+        self.__write_file()
+
+    def __write_file(self):
+        with open(self.__file_path, 'w') as file:
             self.__doc_area.write_pdf_path(file)
 
             file.write(str(len(self.__memo_boxes)) + '\n')
