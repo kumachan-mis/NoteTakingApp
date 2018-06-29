@@ -1,0 +1,26 @@
+from sys import exit
+from PyQt5.QtWidgets import QDialog, QLabel, QPushButton, QVBoxLayout
+
+
+class ErrorWindow(QDialog):
+    def __init__(self, pdf_path):
+        super().__init__()
+        self.__init_ui(pdf_path)
+
+    def __init_ui(self, error_message):
+        self.setWindowTitle('エラー')
+        error_message = QLabel(error_message)
+        ok = QPushButton('OK')
+        ok.setAutoDefault(False)
+        ok.clicked.connect(self.__quit)
+
+        v_box = QVBoxLayout()
+        v_box.addWidget(error_message)
+        v_box.addWidget(ok)
+
+        self.setLayout(v_box)
+        self.show()
+
+    def __quit(self):
+        self.close()
+        exit()

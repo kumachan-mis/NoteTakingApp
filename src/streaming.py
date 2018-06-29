@@ -121,6 +121,9 @@ class StreamingThread(QThread):
                 StreamingThread.__record_keeper(with_results, stream), thread=self)
         except exceptions.InvalidArgument:
             pass
+        except exceptions.ServiceUnavailable:
+            self.streaming_result.emit('オフラインのため, 音声認識結果は表示されません')
+            self.quit()
 
     def __do_streaming(self, sample_rate):
         # See http://g.co/cloud/speech/docs/languages

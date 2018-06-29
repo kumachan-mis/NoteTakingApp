@@ -36,7 +36,7 @@ class UserInterface(QDialog):
         self.__center()
         self.__set_components()
         if is_new:
-            self.__new_note(pdf_path)
+            self.__new_window(pdf_path)
         else:
             self.__open_saved_file()
         self.__set_window_layout()
@@ -50,7 +50,7 @@ class UserInterface(QDialog):
     def __set_components(self):
         self.__gen_memo_box.setText("新規ボックスを作成")
         self.__gen_memo_box.setAutoDefault(False)
-        self.__gen_memo_box.clicked.connect(self.__generate_new_box)
+        self.__gen_memo_box.clicked.connect(self.__add_new_box)
 
         self.__save_overwrite.setText('上書き保存(ctrl+S)')
         self.__save_overwrite.setAutoDefault(False)
@@ -108,27 +108,24 @@ class UserInterface(QDialog):
         self.__th.streaming_result.connect(self.__stream_area.append)
         self.__th.start()
 
-    def __generate_new_box(self):
+    def __add_new_box(self):
         if not self.__memo_boxes:
             related_page = 0
         else:
             related_page = self.__memo_boxes[-1].current_related_page()
 
         box = MemoBox(related_page)
-        box.deleted.connect(self.__remove_from_list)
+        box.deleted.connect(self.__memo_boxes.remove)
         box.jump.connect(self.__doc_area.turn_page)
 
         self.__scroll_splitter.addWidget(box)
         self.__memo_boxes.append(box)
 
-    def __remove_from_list(self, deleted):
-        self.__memo_boxes.remove(deleted)
-
-    def __new_note(self, pdf_path):
+    def __new_window(self, pdf_path):
         self.__doc_area = DocumentViewer(pdf_path, self.__doc_area_size.width())
         MemoBox.set_max_page(self.__doc_area.max_page)
         for index in range(3):
-            self.__generate_new_box()
+            self.__add_new_box()
 
     def __open_saved_file(self):
 
@@ -138,7 +135,7 @@ class UserInterface(QDialog):
 
             memo_box_num = int(str(file.readline()))
             for index in range(memo_box_num):
-                self.__generate_new_box()
+                self.__add_new_box()
                 self.__memo_boxes[index].read_memo_box_info(file)
 
     def __save_as_new_file(self):
@@ -165,8 +162,7 @@ class UserInterface(QDialog):
 
     def closeEvent(self, event):
         get_reply = QMessageBox.question(self, 'close', 'ウィンドウを閉じていいですか？',
-                                         QMessageBox.Yes | QMessageBox.No,
-                                         QMessageBox.No)
+                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if get_reply == QMessageBox.Yes:
             event.accept()

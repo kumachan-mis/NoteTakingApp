@@ -1,11 +1,11 @@
 #!/usr/local/bin/python3
-from sys import exit
 from os import path, makedirs
 from pdf2image import convert_from_path
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread
 from PyQt5.Qt import pyqtSignal
 from main_window import UserInterface
+from error_window import ErrorWindow
 
 
 class MakeDirProgress(QDialog):
@@ -83,7 +83,8 @@ class MakeDirProgress(QDialog):
         ui.exec_()
 
     def __gen_error_window(self):
-        error = PDFNotFound(self.__pdf_path)
+        self.close()
+        error = ErrorWindow(self.__pdf_path + 'は見つかりませんでした...')
         error.exec_()
 
 
@@ -120,27 +121,3 @@ class ProgressThread(QThread):
 
     def run(self):
         self.__make_image_dir()
-
-
-class PDFNotFound(QDialog):
-    def __init__(self, pdf_path):
-        super().__init__()
-        self.__init_ui(pdf_path)
-
-    def __init_ui(self, pdf_path):
-        self.setWindowTitle('エラー')
-        error_message = QLabel(pdf_path + 'は見つかりませんでした...')
-        ok = QPushButton('OK')
-        ok.setAutoDefault(False)
-        ok.clicked.connect(self.__quit)
-
-        v_box = QVBoxLayout()
-        v_box.addWidget(error_message)
-        v_box.addWidget(ok)
-
-        self.setLayout(v_box)
-        self.show()
-
-    def __quit(self):
-        self.close()
-        exit()
