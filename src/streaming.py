@@ -114,10 +114,13 @@ class StreamingThread(QThread):
         Same as in transcribe_streaming_mic, but keeps track of when a sent
         audio_chunk has been transcribed.
         """
-        with_results = (r for r in responses if (
-                r.results and r.results[0].alternatives))
-        streaming_mic.emit_streaming_result(
-            StreamingThread.__record_keeper(with_results, stream), thread=self)
+        try:
+            with_results = (r for r in responses if (
+                    r.results and r.results[0].alternatives))
+            streaming_mic.emit_streaming_result(
+                StreamingThread.__record_keeper(with_results, stream), thread=self)
+        except exceptions.InvalidArgument:
+            pass
 
     def __do_streaming(self, sample_rate):
         # See http://g.co/cloud/speech/docs/languages
@@ -157,4 +160,4 @@ class StreamingThread(QThread):
                     resume = True
 
     def run(self):
-        self.__do_streaming(16000)
+        self.__do_streaming(44100)
