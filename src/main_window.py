@@ -22,7 +22,6 @@ class UserInterface(QDialog):
         self.__doc_area_size = QSize(3 * self.width() / 5, 4 * self.height() / 5)
 
         self.__gen_memo_box = QPushButton()
-        self.__filename_area = QLineEdit()
         self.__save_overwrite = QPushButton()
         self.__save_new = QPushButton()
         self.__memo_boxes = []
@@ -39,7 +38,7 @@ class UserInterface(QDialog):
             self.__new_window(pdf_path)
         else:
             self.__open_saved_file()
-        self.__set_window_layout()
+        self.__set_layout()
 
     def __center(self):
         flame = self.frameGeometry()
@@ -68,7 +67,7 @@ class UserInterface(QDialog):
         self.__stream_area.setReadOnly(False)
         self.__stream_area.append("[音声認識結果]")
 
-    def __set_window_layout(self):
+    def __set_layout(self):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         inner = QWidget()
@@ -128,7 +127,6 @@ class UserInterface(QDialog):
             self.__add_new_box()
 
     def __open_saved_file(self):
-
         with open(self.__file_path, 'r') as file:
             self.__doc_area = DocumentViewer(file.readline()[:-1], self.__doc_area_size.width())
             MemoBox.set_max_page(self.__doc_area.max_page)

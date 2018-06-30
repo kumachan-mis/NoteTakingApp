@@ -20,7 +20,7 @@ class DocumentViewer(QWidget):
         self.__current_page_label = QLabel()
 
         self.__get_doc_image(viewer_width)
-        self.__set_doc_area_layout()
+        self.__set_layout()
 
     def __get_doc_image(self, viewer_width):
         for image_path in sorted(glob(path.join(self.__image_dir_path, '*.png'))):
@@ -29,7 +29,7 @@ class DocumentViewer(QWidget):
 
         self.max_page = len(self.__doc_image_tuple)
 
-    def __set_doc_area_layout(self):
+    def __set_layout(self):
         previous_button = QPushButton("1ページ戻る")
         previous_button.setAutoDefault(False)
         previous_button.clicked.connect(self.__previous_page)
