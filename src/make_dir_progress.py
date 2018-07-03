@@ -115,8 +115,8 @@ class ProgressThread(QThread):
         page = 1
         for image in images:
             save_path = path.join(image_dir_path, 'page{:0=3}.png')
-            self.a_image_loaded.emit(page, save_path.format(page))
             image.save(save_path.format(page), 'png')
+            self.a_image_loaded.emit(page, save_path.format(page))
             page = page + 1
 
     def run(self):
