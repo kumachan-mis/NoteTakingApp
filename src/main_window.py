@@ -4,9 +4,9 @@ from os import path
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtCore import Qt, QSize
-from streaming import StreamingThread
 from memo_box import MemoBox
 from doc_viewer import DocumentViewer
+from stream_editor import StreamEditor
 
 my_extension = '.soundnote'
 
@@ -18,7 +18,7 @@ class UserInterface(QDialog):
         self.__file_path = file_path
 
         screen = QApplication.desktop()
-        self.resize(9 * screen.width() / 10, 4 * screen.height() / 5)
+        self.resize(9 * screen.width() / 10, 9 * screen.height() / 10)
         self.__doc_area_size = QSize(3 * self.width() / 5, 4 * self.height() / 5)
 
         self.__gen_memo_box = QPushButton()
@@ -27,9 +27,8 @@ class UserInterface(QDialog):
         self.__memo_boxes = []
         self.__scroll_splitter = QSplitter(Qt.Vertical)
 
-        self.__stream_area = QTextEdit()
-        self.__th = StreamingThread()
-        self.__run_streaming_thread()
+        self.__stream_area = StreamEditor()
+        self.__stream_area.run_streaming_thread()
 
         self.setWindowTitle("サウンドノート")
         self.__center()
@@ -64,9 +63,6 @@ class UserInterface(QDialog):
         self.__save_new.setAutoDefault(False)
         self.__save_new.clicked.connect(self.__save_as_new_file)
 
-        self.__stream_area.setReadOnly(False)
-        self.__stream_area.append("[音声認識結果]")
-
     def __set_layout(self):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -88,11 +84,11 @@ class UserInterface(QDialog):
         button_widget = QWidget()
         button_widget.setLayout(v_box)
 
-        h_box = QHBoxLayout()
-        h_box.addWidget(button_widget)
-        h_box.addWidget(self.__stream_area)
+        grid = QGridLayout()
+        grid.addWidget(button_widget,      0, 0, 1,  1)
+        grid.addWidget(self.__stream_area, 0, 1, 1, 10)
         stream_widget = QWidget()
-        stream_widget.setLayout(h_box)
+        stream_widget.setLayout(grid)
 
         v_box = QVBoxLayout()
         splitter = QSplitter(Qt.Vertical)
@@ -102,10 +98,6 @@ class UserInterface(QDialog):
         v_box.addWidget(splitter)
 
         self.setLayout(v_box)
-
-    def __run_streaming_thread(self):
-        self.__th.streaming_result.connect(self.__stream_area.append)
-        self.__th.start()
 
     def __add_new_box(self):
         if not self.__memo_boxes:
@@ -136,6 +128,8 @@ class UserInterface(QDialog):
                 self.__add_new_box()
                 self.__memo_boxes[index].read_memo_box_info(file)
 
+            self.__stream_area.read_final_result(file)
+
     def __save_as_new_file(self):
         file_path = QFileDialog.getSaveFileName(None, 'ノートを保存',
                                                 path.expanduser('~') + '/Desktop', '*' + my_extension)[0]
@@ -157,6 +151,8 @@ class UserInterface(QDialog):
             file.write(str(len(self.__memo_boxes)) + '\n')
             for memo_box in self.__memo_boxes:
                 memo_box.write_memo_box_info(file)
+
+            self.__stream_area.write_final_result(file)
 
     def closeEvent(self, event):
         get_reply = QMessageBox.question(self, 'close', 'ウィンドウを閉じていいですか？',

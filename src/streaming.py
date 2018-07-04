@@ -90,6 +90,7 @@ class SimulatedMicrophoneStream(ResumableMicrophoneStream):
 class StreamingThread(QThread):
 
     streaming_result = pyqtSignal(str)
+    final_result = pyqtSignal(str)
 
     @staticmethod
     def __record_keeper(responses, stream):

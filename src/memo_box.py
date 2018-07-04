@@ -1,11 +1,10 @@
 #!/usr/local/bin/python3
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QTextCursor
 from PyQt5.QtCore import pyqtSignal
+from text_edit_read_write import reader, writer
 
 
 class MemoBox(QWidget):
-    end_flag = 'END\n'
     __max_page = 1
     deleted = pyqtSignal(QDialog)
     jump = pyqtSignal(int)
@@ -65,22 +64,9 @@ class MemoBox(QWidget):
     def read_memo_box_info(self, file):
         self.__title_area.setText(file.readline()[:-1])
         self.__related_page_area.setCurrentIndex(int(file.readline()[:-1]))
-        while True:
-            line = file.readline()
-            if line == MemoBox.end_flag:
-                break
-            self.__memo_area.append(line[1:-1])
+        reader(file, self.__memo_area)
 
     def write_memo_box_info(self, file):
         file.write(self.__title_area.text() + '\n')
         file.write(str(self.__related_page_area.currentIndex()) + '\n')
-        cursor = self.__memo_area.textCursor()
-        cursor.movePosition(QTextCursor.Start)
-        while True:
-            cursor.movePosition(QTextCursor.StartOfLine)
-            cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
-            file.write('#' + cursor.selectedText() + '\n')
-            if cursor.atEnd():
-                file.write(MemoBox.end_flag)
-                break
-            cursor.movePosition(QTextCursor.Down)
+        writer(file, self.__memo_area)
