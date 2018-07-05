@@ -4,7 +4,7 @@ from os import path
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtCore import Qt, QSize
-from memo_box import MemoBox
+from memo_box import MemoBoxGroup
 from doc_viewer import DocumentViewer
 from stream_editor import StreamEditor
 
@@ -24,19 +24,16 @@ class UserInterface(QDialog):
         self.__gen_memo_box = QPushButton()
         self.__save_overwrite = QPushButton()
         self.__save_new = QPushButton()
-        self.__memo_boxes = []
-        self.__scroll_splitter = QSplitter(Qt.Vertical)
-
         self.__stream_area = StreamEditor()
         self.__stream_area.run_streaming_thread()
 
         self.setWindowTitle("サウンドノート")
         self.__center()
-        self.__set_components()
         if is_new:
             self.__new_window(pdf_path)
         else:
             self.__open_saved_file()
+        self.__set_components()
         self.__set_layout()
 
     def __center(self):
@@ -48,7 +45,7 @@ class UserInterface(QDialog):
     def __set_components(self):
         self.__gen_memo_box.setText("新規ボックスを作成")
         self.__gen_memo_box.setAutoDefault(False)
-        self.__gen_memo_box.clicked.connect(self.__add_new_box)
+        self.__gen_memo_box.clicked.connect(self.__memo_box_group.add_new_box)
 
         self.__save_overwrite.setText('上書き保存(ctrl+S)')
         self.__save_overwrite.setAutoDefault(False)
@@ -64,16 +61,8 @@ class UserInterface(QDialog):
         self.__save_new.clicked.connect(self.__save_as_new_file)
 
     def __set_layout(self):
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        inner = QWidget()
-        v_box = QVBoxLayout(inner)
-        v_box.addWidget(self.__scroll_splitter)
-        inner.setLayout(v_box)
-        scroll.setWidget(inner)
-
         memo_widget = QSplitter(Qt.Horizontal)
-        memo_widget.addWidget(scroll)
+        memo_widget.addWidget(self.__memo_box_group)
         memo_widget.addWidget(self.__doc_area)
         memo_widget.setSizes([self.width() - self.__doc_area_size.width(), self.__doc_area_size.width()])
 
@@ -99,35 +88,16 @@ class UserInterface(QDialog):
 
         self.setLayout(v_box)
 
-    def __add_new_box(self):
-        if not self.__memo_boxes:
-            related_page = 0
-        else:
-            related_page = self.__memo_boxes[-1].current_related_page()
-
-        box = MemoBox(related_page)
-        box.deleted.connect(self.__memo_boxes.remove)
-        box.jump.connect(self.__doc_area.turn_page)
-
-        self.__scroll_splitter.addWidget(box)
-        self.__memo_boxes.append(box)
-
     def __new_window(self, pdf_path):
         self.__doc_area = DocumentViewer(pdf_path, self.__doc_area_size.width())
-        MemoBox.set_max_page(self.__doc_area.max_page)
-        for index in range(3):
-            self.__add_new_box()
+        self.__memo_box_group = MemoBoxGroup(self.__doc_area.max_page, self.__doc_area.turn_page)
+        self.__memo_box_group.set_default()
 
     def __open_saved_file(self):
         with open(self.__file_path, 'r') as file:
             self.__doc_area = DocumentViewer(file.readline()[:-1], self.__doc_area_size.width())
-            MemoBox.set_max_page(self.__doc_area.max_page)
-
-            memo_box_num = int(str(file.readline()))
-            for index in range(memo_box_num):
-                self.__add_new_box()
-                self.__memo_boxes[index].read_memo_box_info(file)
-
+            self.__memo_box_group = MemoBoxGroup(self.__doc_area.max_page, self.__doc_area.turn_page)
+            self.__memo_box_group.read_memo_box_group_info(file)
             self.__stream_area.read_final_result(file)
 
     def __save_as_new_file(self):

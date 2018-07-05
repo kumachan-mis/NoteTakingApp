@@ -1,20 +1,16 @@
 #!/usr/local/bin/python3
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal
 from text_edit_read_write import reader, writer
 
 
 class MemoBox(QWidget):
-    __max_page = 1
     deleted = pyqtSignal(QDialog)
     jump = pyqtSignal(int)
 
-    @staticmethod
-    def set_max_page(max_page):
-        MemoBox.__max_page = max_page
-
-    def __init__(self, related_page):
+    def __init__(self, max_page, related_page):
         super().__init__()
+        self.__max_page = max_page
         self.__title_area = QLineEdit()
         self.__memo_area = QTextEdit()
 
@@ -25,7 +21,7 @@ class MemoBox(QWidget):
     def __init_combo(self, related_page):
         self.__related_page_area.setEditable(False)
 
-        for page_num in range(1, MemoBox.__max_page + 1):
+        for page_num in range(1, self.__max_page + 1):
             self.__related_page_area.addItem(str(page_num))
 
         self.__related_page_area.setCurrentIndex(related_page)
@@ -70,3 +66,45 @@ class MemoBox(QWidget):
         file.write(self.__title_area.text() + '\n')
         file.write(str(self.__related_page_area.currentIndex()) + '\n')
         writer(file, self.__memo_area)
+
+
+class MemoBoxGroup(QScrollArea):
+    def __init__(self, max_page, jump_method):
+        super().__init__()
+        self.__max_page = max_page
+        self.__jump_method = jump_method
+        self.__memo_boxes = []
+        self.__scroll_splitter = QSplitter(Qt.Vertical)
+
+        self.__set_layout()
+
+    def __set_layout(self):
+        self.setWidgetResizable(True)
+        inner = QWidget()
+        v_box = QVBoxLayout(inner)
+        v_box.addWidget(self.__scroll_splitter)
+        inner.setLayout(v_box)
+        self.setWidget(inner)
+
+    def add_new_box(self):
+        if not self.__memo_boxes:
+            related_page = 0
+        else:
+            related_page = self.__memo_boxes[-1].current_related_page()
+
+        box = MemoBox(self.__max_page, related_page)
+        box.deleted.connect(self.__memo_boxes.remove)
+        box.jump.connect(self.__jump_method)
+
+        self.__scroll_splitter.addWidget(box)
+        self.__memo_boxes.append(box)
+
+    def set_default(self):
+        for index in range(3):
+            self.add_new_box()
+
+    def read_memo_box_group_info(self, file):
+        memo_box_num = int(str(file.readline()))
+        for index in range(memo_box_num):
+            self.add_new_box()
+            self.__memo_boxes[index].read_memo_box_info(file)

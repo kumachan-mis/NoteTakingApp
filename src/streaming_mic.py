@@ -117,5 +117,5 @@ def emit_streaming_result(responses, thread):
 
         else:
             thread.streaming_result.emit(transcript + overwrite_chars + "\n")
-            thread.final_result.emit(transcript + overwrite_chars + "\n")
+            thread.final_result.emit(transcript + overwrite_chars)
             num_chars_printed = 0
