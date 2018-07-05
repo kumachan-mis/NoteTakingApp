@@ -117,11 +117,7 @@ class UserInterface(QDialog):
     def __write_file(self):
         with open(self.__file_path, 'w') as file:
             self.__doc_area.write_pdf_path(file)
-
-            file.write(str(len(self.__memo_boxes)) + '\n')
-            for memo_box in self.__memo_boxes:
-                memo_box.write_memo_box_info(file)
-
+            self.__memo_box_group.write_memo_box_group_info(file)
             self.__stream_area.write_final_result(file)
 
     def closeEvent(self, event):

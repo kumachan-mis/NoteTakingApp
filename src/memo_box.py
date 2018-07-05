@@ -108,3 +108,8 @@ class MemoBoxGroup(QScrollArea):
         for index in range(memo_box_num):
             self.add_new_box()
             self.__memo_boxes[index].read_memo_box_info(file)
+
+    def write_memo_box_group_info(self, file):
+        file.write(str(len(self.__memo_boxes)) + '\n')
+        for memo_box in self.__memo_boxes:
+            memo_box.write_memo_box_info(file)
