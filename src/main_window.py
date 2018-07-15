@@ -6,7 +6,7 @@ from PyQt5.QtGui import QKeySequence
 from PyQt5.QtCore import Qt, QSize
 from memo_box import MemoBoxGroup
 from doc_viewer import DocumentViewer
-from stream_editor import StreamEditor
+from stream_editor import StreamingEditor
 
 my_extension = '.soundnote'
 
@@ -19,12 +19,12 @@ class UserInterface(QDialog):
 
         screen = QApplication.desktop()
         self.resize(9 * screen.width() / 10, 9 * screen.height() / 10)
-        self.__doc_area_size = QSize(3 * self.width() / 5, 4 * self.height() / 5)
+        self.__doc_area_size = QSize(3 * self.width() / 5, 7 * self.height() / 10)
 
         self.__gen_memo_box = QPushButton()
         self.__save_overwrite = QPushButton()
         self.__save_new = QPushButton()
-        self.__stream_area = StreamEditor()
+        self.__stream_area = StreamingEditor()
         self.__stream_area.run_streaming_thread()
 
         self.setWindowTitle("サウンドノート")
