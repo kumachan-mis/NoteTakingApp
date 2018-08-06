@@ -9,12 +9,10 @@ from glob import glob
 class DocumentViewer(QWidget):
     current_page_response = pyqtSignal(int)
 
-    def __init__(self, pdf_path, viewer_width):
+    def __init__(self, path_data, viewer_width):
         super().__init__()
-        filename = path.splitext(path.split(pdf_path)[1])[0]
 
-        self.__pdf_path = pdf_path
-        self.__image_dir_path = path.join('../images', filename)
+        self.__path_data = path_data
         self.__doc_image_tuple = ()
         self.__current_page = 0
         self.max_page = 0
@@ -26,7 +24,7 @@ class DocumentViewer(QWidget):
         self.__set_layout()
 
     def __get_doc_image(self, viewer_width):
-        for image_path in sorted(glob(path.join(self.__image_dir_path, '*.png'))):
+        for image_path in sorted(glob(path.join(self.__path_data.image_dir_path, '*.png'))):
             pix_map = QPixmap(image_path).scaledToWidth(viewer_width)
             self.__doc_image_tuple = self.__doc_image_tuple + (pix_map,)
 
@@ -65,6 +63,3 @@ class DocumentViewer(QWidget):
 
     def emit_current_page(self):
         self.current_page_response.emit(self.__current_page + 1)
-
-    def write_pdf_path(self, file):
-        file.write(self.__pdf_path + '\n')

@@ -9,26 +9,24 @@ from error_window import ErrorWindow
 
 
 class MakeDirProgress(QDialog):
-    def __init__(self, is_new, pdf_path = '', file_path = ''):
+    def __init__(self, path_data):
         super().__init__()
-        self.__is_new = is_new
-        self.__pdf_path = pdf_path
-        self.__file_path = file_path
+        self.__path_data = path_data
         self.__set_pdf_path()
 
         self.__loading_filename = QLabel()
         self.__progress = QProgressBar()
-        self.__th = ProgressThread(self.__pdf_path)
+        self.__th = ProgressThread(self.__path_data)
         self.__run_progress_thread()
 
         self.__init_ui()
 
     def __set_pdf_path(self):
-        if self.__file_path == '':
+        if self.__path_data.file_path == '':
             return
 
-        with open(self.__file_path, 'r') as file:
-            self.__pdf_path = file.readline()[:-1]
+        with open(self.__path_data.file_path, 'r') as file:
+            self.__path_data.set_pdf_image_dir_path(file.readline()[:-1])
 
     def __init_ui(self):
         screen = QApplication.desktop()
@@ -76,15 +74,12 @@ class MakeDirProgress(QDialog):
         self.__th.start()
 
     def __gen_main_window(self):
-        if self.__is_new:
-            ui = UserInterface(True, pdf_path=self.__pdf_path)
-        else:
-            ui = UserInterface(False, file_path=self.__file_path)
+        ui = UserInterface(self.__path_data)
         ui.exec_()
 
     def __gen_error_window(self):
         self.close()
-        error = ErrorWindow(self.__pdf_path + 'は見つかりませんでした...')
+        error = ErrorWindow(self.__path_data.pdf_path + 'は見つかりませんでした...')
         error.exec_()
 
 
@@ -92,29 +87,26 @@ class ProgressThread(QThread):
     load_ready = pyqtSignal(int)
     a_image_loaded = pyqtSignal(int, str)
 
-    def __init__(self, pdf_path):
+    def __init__(self, path_data):
         super().__init__()
-        self.__pdf_path = pdf_path
+        self.__path_data = path_data
 
     def __make_image_dir(self):
-        filename = path.splitext(path.split(self.__pdf_path)[1])[0]
-        image_dir_path = path.join('../images', filename)
-
-        if path.isdir(image_dir_path):
+        if path.isdir(self.__path_data.image_dir_path):
             self.load_ready.emit(-1)
             return
 
-        if not path.isfile(self.__pdf_path):
+        if not path.isfile(self.__path_data.pdf_path):
             self.load_ready.emit(-2)
             return
 
-        makedirs(image_dir_path)
-        images = convert_from_path(self.__pdf_path)
+        makedirs(self.__path_data.image_dir_path)
+        images = convert_from_path(self.__path_data.pdf_path)
         self.load_ready.emit(len(images))
 
         page = 1
         for image in images:
-            save_path = path.join(image_dir_path, 'page{:0=3}.png')
+            save_path = path.join(self.__path_data.image_dir_path, 'page{:0=3}.png')
             image.save(save_path.format(page), 'png')
             self.a_image_loaded.emit(page, save_path.format(page))
             page = page + 1

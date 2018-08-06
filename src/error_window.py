@@ -3,9 +3,9 @@ from PyQt5.QtWidgets import QDialog, QLabel, QPushButton, QVBoxLayout
 
 
 class ErrorWindow(QDialog):
-    def __init__(self, pdf_path):
+    def __init__(self, error_message):
         super().__init__()
-        self.__init_ui(pdf_path)
+        self.__init_ui(error_message)
 
     def __init_ui(self, error_message):
         self.setWindowTitle('エラー')

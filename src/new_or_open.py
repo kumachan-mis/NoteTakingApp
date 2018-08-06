@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 from os import path
 from PyQt5.QtWidgets import *
+from path_data import PathData
 from make_dir_progress import MakeDirProgress
 from main_window import my_extension
 
@@ -38,18 +39,17 @@ class NewOrOpen(QDialog):
         pdf_path = QFileDialog.getOpenFileName(None, '講義資料を開く',
                                                path.expanduser('~') + '/Desktop', '*.pdf')[0]
         if path.splitext(pdf_path)[1] != '.pdf':
-            exit()
-
-        self.close()
-        make_dir = MakeDirProgress(True, pdf_path=pdf_path)
-        make_dir.exec_()
+            return
+        self.__goto_make_dir(PathData(True, pdf_path=pdf_path))
 
     def __choose_open_file(self):
         file_path = QFileDialog.getOpenFileName(None, 'ノートを開く',
                                                 path.expanduser('~') + '/Desktop', '*' + my_extension)[0]
         if path.splitext(file_path)[1] != my_extension:
-            exit()
+            return
+        self.__goto_make_dir(PathData(False, file_path=file_path))
 
+    def __goto_make_dir(self, path_data):
         self.close()
-        make_dir = MakeDirProgress(False, file_path=file_path)
+        make_dir = MakeDirProgress(path_data)
         make_dir.exec_()

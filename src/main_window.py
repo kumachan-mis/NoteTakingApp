@@ -14,11 +14,11 @@ my_extension = '.soundnote'
 class UserInterface(QWidget):
     def exec_(self):
         self.__dialog.exec_()
-    
-    def __init__(self, is_new, pdf_path = '', file_path = ''):
+
+    def __init__(self, path_data):
         super().__init__()
 
-        self.__file_path = file_path
+        self.__path_data = path_data
         self.__dialog = QDialog()
 
         screen = QApplication.desktop()
@@ -33,8 +33,8 @@ class UserInterface(QWidget):
 
         self.setWindowTitle("サウンドノート")
         self.__center()
-        if is_new:
-            self.__new_window(pdf_path)
+        if self.__path_data.is_new:
+            self.__new_window()
         else:
             self.__open_saved_file()
         self.__set_components()
@@ -103,14 +103,15 @@ class UserInterface(QWidget):
         v_box.addWidget(self.__dialog)
         self.setLayout(v_box)
 
-    def __new_window(self, pdf_path):
-        self.__doc_area = DocumentViewer(pdf_path, self.__doc_area_size.width())
+    def __new_window(self):
+        self.__doc_area = DocumentViewer(self.__path_data, self.__doc_area_size.width())
         self.__memo_box_group = MemoBoxGroup(self.__doc_area.max_page, self.__doc_area.turn_page)
         self.__memo_box_group.set_default()
 
     def __open_saved_file(self):
-        with open(self.__file_path, 'r') as file:
-            self.__doc_area = DocumentViewer(file.readline()[:-1], self.__doc_area_size.width())
+        with open(self.__path_data.file_path, 'r') as file:
+            self.__path_data.set_pdf_image_dir_path(file.readline()[:-1])
+            self.__doc_area = DocumentViewer(self.__path_data, self.__doc_area_size.width())
             self.__memo_box_group = MemoBoxGroup(self.__doc_area.max_page, self.__doc_area.turn_page)
             self.__memo_box_group.read_memo_box_group_info(file)
             self.__stream_area.read_final_result(file)
@@ -120,18 +121,18 @@ class UserInterface(QWidget):
                                                 path.expanduser('~') + '/Desktop', '*' + my_extension)[0]
         if file_path == '':
             return
-        self.__file_path = file_path
+        self.__path_data.file_path = file_path
         self.__write_file()
 
     def __overwrite_save_file(self):
-        if self.__file_path == '':
+        if self.__path_data.file_path == '':
             self.__save_as_new_file()
             return
         self.__write_file()
 
     def __write_file(self):
-        with open(self.__file_path, 'w') as file:
-            self.__doc_area.write_pdf_path(file)
+        with open(self.__path_data.file_path, 'w') as file:
+            file.write(self.__path_data.pdf_path + '\n')
             self.__memo_box_group.write_memo_box_group_info(file)
             self.__stream_area.write_final_result(file)
 
