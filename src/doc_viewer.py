@@ -1,11 +1,14 @@
 #!/usr/local/bin/python3
 from os import path
 from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QScrollArea, QPushButton
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QPixmap
 from glob import glob
 
 
 class DocumentViewer(QWidget):
+    current_page_response = pyqtSignal(int)
+
     def __init__(self, pdf_path, viewer_width):
         super().__init__()
         filename = path.splitext(path.split(pdf_path)[1])[0]
@@ -30,7 +33,7 @@ class DocumentViewer(QWidget):
         self.max_page = len(self.__doc_image_tuple)
 
     def __set_layout(self):
-        previous_button = QPushButton("1ページ戻る")
+        previous_button = QPushButton('1ページ戻る')
         previous_button.setAutoDefault(False)
         previous_button.clicked.connect(self.__previous_page)
         next_button = QPushButton('1ページ進む')
@@ -59,6 +62,9 @@ class DocumentViewer(QWidget):
         label.setPixmap(self.__doc_image_tuple[self.__current_page])
         self.__scroll.setWidget(label)
         self.__current_page_label.setText('ページ' + str(self.__current_page + 1))
+
+    def emit_current_page(self):
+        self.current_page_response.emit(self.__current_page + 1)
 
     def write_pdf_path(self, file):
         file.write(self.__pdf_path + '\n')

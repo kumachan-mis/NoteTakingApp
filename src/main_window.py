@@ -11,11 +11,15 @@ from stream_editor import StreamingEditor
 my_extension = '.soundnote'
 
 
-class UserInterface(QDialog):
+class UserInterface(QWidget):
+    def exec_(self):
+        self.__dialog.exec_()
+    
     def __init__(self, is_new, pdf_path = '', file_path = ''):
         super().__init__()
 
         self.__file_path = file_path
+        self.__dialog = QDialog()
 
         screen = QApplication.desktop()
         self.resize(9 * screen.width() / 10, 9 * screen.height() / 10)
@@ -35,6 +39,7 @@ class UserInterface(QDialog):
             self.__open_saved_file()
         self.__set_components()
         self.__set_layout()
+        self.show()
 
     def __center(self):
         flame = self.frameGeometry()
@@ -43,7 +48,7 @@ class UserInterface(QDialog):
         self.move(flame.topLeft())
 
     def __set_components(self):
-        self.__gen_memo_box.setText("新規ボックスを作成")
+        self.__gen_memo_box.setText('新規ボックスを作成')
         self.__gen_memo_box.setAutoDefault(False)
         self.__gen_memo_box.clicked.connect(self.__memo_box_group.add_new_box)
 
@@ -56,9 +61,16 @@ class UserInterface(QDialog):
         save_action.triggered.connect(self.__overwrite_save_file)
         self.addAction(save_action)
 
-        self.__save_new.setText("新しいノートとして保存")
+        self.__save_new.setText('新しいノートとして保存')
         self.__save_new.setAutoDefault(False)
         self.__save_new.clicked.connect(self.__save_as_new_file)
+
+        self.__stream_area.current_page_request.connect(
+            self.__doc_area.emit_current_page
+        )
+        self.__doc_area.current_page_response.connect(
+            self.__stream_area.print_final_result
+        )
 
     def __set_layout(self):
         memo_widget = QSplitter(Qt.Horizontal)
@@ -86,6 +98,9 @@ class UserInterface(QDialog):
         splitter.setSizes([self.__doc_area_size.height(), self.height() - self.__doc_area_size.height()])
         v_box.addWidget(splitter)
 
+        self.__dialog.setLayout(v_box)
+        v_box = QVBoxLayout()
+        v_box.addWidget(self.__dialog)
         self.setLayout(v_box)
 
     def __new_window(self, pdf_path):

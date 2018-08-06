@@ -1,13 +1,16 @@
 #!/usr/local/bin/python3
 from PyQt5.QtWidgets import QWidget, QTextEdit, QLineEdit, QSplitter, QVBoxLayout
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from streaming import StreamingThread
 from text_edit_read_write import reader, writer
 
 
 class StreamingEditor(QWidget):
+    current_page_request = pyqtSignal()
+
     def __init__(self):
         super().__init__()
+        self.__final_result = None
         self.__th = StreamingThread()
         self.__final_result_viewer = QTextEdit()
         self.__all_result_viewer = QLineEdit()
@@ -28,9 +31,16 @@ class StreamingEditor(QWidget):
         self.setLayout(v_box)
 
     def run_streaming_thread(self):
-        self.__th.final_result.connect(self.__final_result_viewer.append)
+        self.__th.final_result.connect(self.__set_final_result)
         self.__th.streaming_result.connect(self.__all_result_viewer.setText)
         self.__th.start()
+
+    def __set_final_result(self, final_result):
+        self.__final_result = final_result
+        self.current_page_request.emit()
+
+    def print_final_result(self, current_page):
+        self.__final_result_viewer.append(self.__final_result + '(' + str(current_page) + ')')
 
     def read_final_result(self, file):
         reader(file, self.__final_result_viewer)

@@ -14,14 +14,14 @@ class NewOrOpen(QDialog):
         self.__init_ui()
 
     def __init_ui(self):
-        welcome_label = QLabel("サウンドノートへようこそ.")
+        welcome_label = QLabel('サウンドノートへようこそ.')
 
-        self.__new_note.setText("ノートを新規作成")
+        self.__new_note.setText('ノートを新規作成')
         self.__new_note.setToolTip('講義資料のPDFファイルを選択します.')
         self.__new_note.clicked.connect(self.__gen_new_note)
         self.__new_note.setAutoDefault(False)
 
-        self.__open_file.setText("作ったノートを開く")
+        self.__open_file.setText('作ったノートを開く')
         self.__open_file.setToolTip('保存されているノートを選択します.')
         self.__open_file.setAutoDefault(False)
         self.__open_file.clicked.connect(self.__choose_open_file)
