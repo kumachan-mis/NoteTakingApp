@@ -50,11 +50,9 @@ class MakeDirProgress(QDialog):
     def __init_progress(self, max):
         if max == -1:
             self.__th.quit()
-            self.close()
             self.__gen_main_window()
         elif max == -2:
             self.__th.quit()
-            self.close()
             self.__gen_error_window()
         else:
             self.__progress.setRange(0, max)
@@ -65,7 +63,6 @@ class MakeDirProgress(QDialog):
 
         if value == self.__progress.maximum():
             self.__th.quit()
-            self.close()
             self.__gen_main_window()
 
     def __run_progress_thread(self):
@@ -74,6 +71,7 @@ class MakeDirProgress(QDialog):
         self.__th.start()
 
     def __gen_main_window(self):
+        self.close()
         ui = UserInterface(self.__path_data)
         ui.exec_()
 
