@@ -25,7 +25,7 @@ class UserInterface(QWidget):
         self.resize(9 * screen.width() / 10, 9 * screen.height() / 10)
         self.__doc_area_size = QSize(3 * self.width() / 5, 7 * self.height() / 10)
 
-        self.__menu_bar_gen = UIMenuBar(self)
+        self.__menu_bar = UIMenuBar(self)
         self.__gen_memo_box = QPushButton()
         self.__stream_area = StreamingEditor()
         self.__stream_area.run_streaming_thread()
@@ -53,7 +53,7 @@ class UserInterface(QWidget):
         self.move(flame.topLeft())
 
     def __set_components(self):
-        self.__menu_bar_gen.set_file_menu()
+        self.__menu_bar.set_file_menu()
 
         self.__gen_memo_box.setText('新規ボックスを作成')
         self.__gen_memo_box.setAutoDefault(False)
