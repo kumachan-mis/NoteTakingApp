@@ -1,4 +1,3 @@
-from sys import exit
 from PyQt5.QtWidgets import QDialog, QLabel, QPushButton, QVBoxLayout
 
 
@@ -23,4 +22,4 @@ class ErrorWindow(QDialog):
 
     def __quit(self):
         self.close()
-        exit()
+        self.deleteLater()

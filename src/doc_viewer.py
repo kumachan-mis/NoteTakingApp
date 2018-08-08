@@ -1,9 +1,9 @@
 #!/usr/local/bin/python3
-from os import path
+import os
 from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QScrollArea, QPushButton
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QPixmap
-from glob import glob
+import glob
 
 
 class DocumentViewer(QWidget):
@@ -24,7 +24,7 @@ class DocumentViewer(QWidget):
         self.__set_layout()
 
     def __get_doc_image(self, viewer_width):
-        for image_path in sorted(glob(path.join(self.__path_data.image_dir_path, '*.png'))):
+        for image_path in sorted(glob.glob(os.path.join(self.__path_data.image_dir_path, '*.png'))):
             pix_map = QPixmap(image_path).scaledToWidth(viewer_width)
             self.__doc_image_tuple = self.__doc_image_tuple + (pix_map,)
 

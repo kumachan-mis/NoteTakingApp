@@ -1,32 +1,35 @@
 #!/usr/local/bin/python3
-from sys import exit
-from os import path
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt, QSize
-from memo_box import MemoBoxGroup
-from doc_viewer import DocumentViewer
-from stream_editor import StreamingEditor
-
-my_extension = '.soundnote'
+import sys
+import os
+from PyQt5.QtWidgets import (QApplication, QDesktopWidget, QWidget, QDialog,
+                             QPushButton, QSplitter, QVBoxLayout, QGridLayout, QMessageBox,
+                             QMenuBar, QFileDialog, QAction)
+from PyQt5.Qt import QSize, Qt
+import memo_box
+import doc_viewer
+import stream_editor
+import file_dialog
+from data import my_extension
 
 
 class UserInterface(QWidget):
+    __num_of_instance = 0
+
     def exec_(self):
         self.__dialog.exec_()
 
     def __init__(self, path_data):
         super().__init__()
-
+        UserInterface.__num_of_instance += 1
         self.path_data = path_data
         self.__dialog = QDialog()
 
         screen = QApplication.desktop()
-        self.resize(9 * screen.width() / 10, 9 * screen.height() / 10)
-        self.__doc_area_size = QSize(3 * self.width() / 5, 7 * self.height() / 10)
+        self.resize(screen.width(), 9*screen.height()/10)
+        self.__doc_area_size = QSize(3*self.width()/5, 7*self.height()/10)
 
-        self.__menu_bar = UIMenuBar(self)
         self.__gen_memo_box = QPushButton()
-        self.__stream_area = StreamingEditor()
+        self.__stream_area = stream_editor.StreamingEditor()
         self.__stream_area.run_streaming_thread()
 
         self.set_title()
@@ -52,7 +55,8 @@ class UserInterface(QWidget):
         self.move(flame.topLeft())
 
     def __set_components(self):
-        self.__menu_bar.set_file_menu()
+        menu_bar = UIMenuBar(self)
+        menu_bar.set_file_menu()
 
         self.__gen_memo_box.setText('新規ボックスを作成')
         self.__gen_memo_box.setAutoDefault(False)
@@ -90,15 +94,15 @@ class UserInterface(QWidget):
         self.setLayout(v_box)
 
     def __new_window(self):
-        self.__doc_area = DocumentViewer(self.path_data, self.__doc_area_size.width())
-        self.__memo_box_group = MemoBoxGroup(self.__doc_area.max_page, self.__doc_area.turn_page)
+        self.__doc_area = doc_viewer.DocumentViewer(self.path_data, self.__doc_area_size.width())
+        self.__memo_box_group = memo_box.MemoBoxGroup(self.__doc_area.max_page, self.__doc_area.turn_page)
         self.__memo_box_group.set_default()
 
     def __open_saved_file(self):
         with open(self.path_data.file_path, 'r') as file:
             self.path_data.set_pdf_image_dir_path(file.readline()[:-1])
-            self.__doc_area = DocumentViewer(self.path_data, self.__doc_area_size.width())
-            self.__memo_box_group = MemoBoxGroup(self.__doc_area.max_page, self.__doc_area.turn_page)
+            self.__doc_area = doc_viewer.DocumentViewer(self.path_data, self.__doc_area_size.width())
+            self.__memo_box_group = memo_box.MemoBoxGroup(self.__doc_area.max_page, self.__doc_area.turn_page)
             self.__memo_box_group.read_memo_box_group_info(file)
             self.__stream_area.read_final_result(file)
 
@@ -110,11 +114,14 @@ class UserInterface(QWidget):
 
     def closeEvent(self, event):
         get_reply = QMessageBox.question(self, 'close', 'ウィンドウを閉じていいですか？',
-                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                                           QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if get_reply == QMessageBox.Yes:
             event.accept()
-            exit()
+            UserInterface.__num_of_instance -= 1
+            self.close()
+            if UserInterface.__num_of_instance == 0:
+                sys.exit()
         else:
             event.ignore()
 
@@ -123,27 +130,39 @@ class UIMenuBar(QMenuBar):
     def __init__(self, ui):
         super().__init__(ui)
         self.__ui = ui
+        self.__new_or_open = file_dialog.NewOrOpen(False)
 
     def set_file_menu(self):
         file_menu = self.addMenu(' &ファイル')
 
-        save_action = QAction(' &名前をつけて保存', self.__ui)
-        save_action.setShortcut('Ctrl+Shift+S')
-        save_action.triggered.connect(self.__save_as_new_file)
-        file_menu.addAction(save_action)
+        action = QAction(' &名前をつけて保存', self.__ui)
+        action.setShortcut('Ctrl+Shift+S')
+        action.triggered.connect(self.__save_as_new_file)
+        file_menu.addAction(action)
 
-        save_action = QAction(' &上書き保存', self.__ui)
-        save_action.setShortcut('Ctrl+S')
-        save_action.triggered.connect(self.__overwrite_save_file)
-        file_menu.addAction(save_action)
+        action = QAction(' &上書き保存', self.__ui)
+        action.setShortcut('Ctrl+S')
+        action.triggered.connect(self.__overwrite_save_file)
+        file_menu.addAction(action)
 
-        exit_action = QAction(' &終了', self.__ui)
-        exit_action.triggered.connect(self.__ui.close)
-        file_menu.addAction(exit_action)
+        action = QAction(' &ノートを新規作成', self.__ui)
+        action.setShortcut('Ctrl+N')
+        action.triggered.connect(self.__new_or_open.gen_new_note)
+        file_menu.addAction(action)
+
+        action = QAction(' &ノートを開く', self.__ui)
+        action.setShortcut('Ctrl+O')
+        action.triggered.connect(self.__new_or_open.choose_open_file)
+        file_menu.addAction(action)
+
+        file_menu.addSeparator()
+        action = QAction(' &終了', self.__ui)
+        action.triggered.connect(self.__ui.close)
+        file_menu.addAction(action)
 
     def __save_as_new_file(self):
-        file_path = QFileDialog.getSaveFileName(None, 'ノートを保存',
-                                                path.expanduser('~') + '/Desktop', '*' + my_extension)[0]
+        file_path = QFileDialog.getSaveFileName(self, 'ノートを保存',
+                                                os.path.expanduser('~') + '/Desktop', '*' + my_extension)[0]
         if file_path == '':
             return
         self.__ui.path_data.set_file_path_name(file_path)

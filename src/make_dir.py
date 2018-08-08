@@ -1,11 +1,11 @@
 #!/usr/local/bin/python3
-from os import path, makedirs
-from pdf2image import convert_from_path
-from PyQt5.QtWidgets import *
+import os
+import pdf2image
+from PyQt5.QtWidgets import QApplication, QDesktopWidget, QDialog, QLabel, QProgressBar, QVBoxLayout
 from PyQt5.QtCore import QThread
 from PyQt5.Qt import pyqtSignal
-from main_window import UserInterface
-from error_window import ErrorWindow
+import main
+import error
 
 
 class MakeDirProgress(QDialog):
@@ -16,7 +16,7 @@ class MakeDirProgress(QDialog):
 
         self.__loading_filename = QLabel()
         self.__progress = QProgressBar()
-        self.__th = ProgressThread(self.__path_data)
+        self.__th = MakeDirThread(self.__path_data)
         self.__run_progress_thread()
 
         self.__init_ui()
@@ -72,16 +72,18 @@ class MakeDirProgress(QDialog):
 
     def __gen_main_window(self):
         self.close()
-        ui = UserInterface(self.__path_data)
+        self.deleteLater()
+        ui = main.UserInterface(self.__path_data)
         ui.exec_()
 
     def __gen_error_window(self):
         self.close()
-        error = ErrorWindow(self.__path_data.pdf_path + 'は見つかりませんでした...')
-        error.exec_()
+        self.deleteLater()
+        ew = error.ErrorWindow(self.__path_data.pdf_path + 'は見つかりませんでした...')
+        ew.exec_()
 
 
-class ProgressThread(QThread):
+class MakeDirThread(QThread):
     load_ready = pyqtSignal(int)
     a_image_loaded = pyqtSignal(int, str)
 
@@ -90,21 +92,21 @@ class ProgressThread(QThread):
         self.__path_data = path_data
 
     def __make_image_dir(self):
-        if path.isdir(self.__path_data.image_dir_path):
+        if os.path.isdir(self.__path_data.image_dir_path):
             self.load_ready.emit(-1)
             return
 
-        if not path.isfile(self.__path_data.pdf_path):
+        if not os.path.isfile(self.__path_data.pdf_path):
             self.load_ready.emit(-2)
             return
 
-        makedirs(self.__path_data.image_dir_path)
-        images = convert_from_path(self.__path_data.pdf_path)
+        os.makedirs(self.__path_data.image_dir_path)
+        images = pdf2image.convert_from_path(self.__path_data.pdf_path)
         self.load_ready.emit(len(images))
 
         page = 1
         for image in images:
-            save_path = path.join(self.__path_data.image_dir_path, 'page{:0=3}.png')
+            save_path = os.path.join(self.__path_data.image_dir_path, 'page{:0=3}.png')
             image.save(save_path.format(page), 'png')
             self.a_image_loaded.emit(page, save_path.format(page))
             page = page + 1

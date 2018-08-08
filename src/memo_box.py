@@ -1,7 +1,8 @@
 #!/usr/local/bin/python3
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import (QWidget, QDialog, QLineEdit, QTextEdit, QComboBox, QLabel, QPushButton,
+                             QScrollArea, QSplitter, QVBoxLayout, QGridLayout)
 from PyQt5.QtCore import Qt, pyqtSignal
-from text_edit_read_write import reader, writer
+import read_write
 
 
 class MemoBox(QWidget):
@@ -60,12 +61,12 @@ class MemoBox(QWidget):
     def read_memo_box_info(self, file):
         self.__title_area.setText(file.readline()[:-1])
         self.__related_page_area.setCurrentIndex(int(file.readline()[:-1]))
-        reader(file, self.__memo_area)
+        read_write.reader(file, self.__memo_area)
 
     def write_memo_box_info(self, file):
         file.write(self.__title_area.text() + '\n')
         file.write(str(self.__related_page_area.currentIndex()) + '\n')
-        writer(file, self.__memo_area)
+        read_write.writer(file, self.__memo_area)
 
 
 class MemoBoxGroup(QScrollArea):

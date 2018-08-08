@@ -13,7 +13,7 @@ from google.cloud.speech import types
 from google.api_core import exceptions
 
 import streaming_mic
-from PyQt5.QtCore import QThread,pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal
 # [END import_libraries]
 
 

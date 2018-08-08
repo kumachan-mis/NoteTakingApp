@@ -2,7 +2,6 @@
 # a sample usage of Google Cloud Speech API
 
 from __future__ import division
-import sys
 import pyaudio
 from six.moves import queue
 

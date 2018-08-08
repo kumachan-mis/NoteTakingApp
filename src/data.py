@@ -1,5 +1,7 @@
 #!/usr/local/bin/python3
-from os import path
+import os
+
+my_extension = '.soundnote'
 
 
 class PathData:
@@ -18,12 +20,12 @@ class PathData:
             return
 
         self.pdf_path = pdf_path
-        filename = path.splitext(path.split(self.pdf_path)[1])[0]
-        self.image_dir_path = path.join('../images', filename)
+        filename = os.path.splitext(os.path.split(self.pdf_path)[1])[0]
+        self.image_dir_path = os.path.join('images', filename)
 
     def set_file_path_name(self, file_path):
         if file_path == '':
             return
 
         self.file_path = file_path
-        self.file_name = path.splitext(path.split(self.file_path)[1])[0]
+        self.file_name = os.path.splitext(os.path.split(self.file_path)[1])[0]
